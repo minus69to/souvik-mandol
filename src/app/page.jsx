@@ -96,7 +96,26 @@ export default function Home() {
               {portfolioData.about.extras.map((item, index) => (
                 <li key={index} className="flex items-start gap-4 hover:text-black transition-colors">
                   <span className="mt-2 h-1.5 w-1.5 bg-black rounded-full shrink-0"></span>
-                  <span>{item}</span>
+                  <span>
+                    {item.split(/(\[[^\]]+\]\([^\)]+\))/g).map((part, partIndex) => {
+                      const match = part.match(/^\[([^\]]+)\]\(([^\)]+)\)$/);
+                      if (match) {
+                        const [, label, url] = match;
+                        return (
+                          <a
+                            key={partIndex}
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline decoration-2 underline-offset-4 hover:text-black"
+                          >
+                            {label}
+                          </a>
+                        );
+                      }
+                      return <React.Fragment key={partIndex}>{part}</React.Fragment>;
+                    })}
+                  </span>
                 </li>
               ))}
             </ul>

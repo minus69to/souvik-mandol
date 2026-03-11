@@ -38,7 +38,7 @@ export const portfolioData = {
         "Mini-marathon runner aiming for a full marathon and maybe a triathlon someday.",
         "Not a foodie, more of a food hunter exploring new restaurants and cuisines.",
         "Cinephile who enjoys catching movies at Cineplex whenever possible.",
-        "Beginner hobbyist photographer. Some shots live on my Instagram!",
+        "Beginner hobbyist photographer. Some shots live on my [Instagram](https://www.instagram.com/insomniyuck.537).",
         "Traveller who prefers hiking and hopes to reach ABC someday.",
         "New to the book-reading league but enjoying it a lot."
     ]
