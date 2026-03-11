@@ -1,6 +1,6 @@
 'use client'; // Required for client-side interactivity in Next.js App Router
 import React, { useState, useEffect } from 'react';
-import { Code2, ExternalLink, Mail, Github, Linkedin } from 'lucide-react';
+import { Code2, ExternalLink, Mail, Github, Linkedin, FileText } from 'lucide-react';
 import { portfolioData } from '../data/portfolioData';
 import Sidebar from '../components/Sidebar';
 import MobileHeader from '../components/MobileHeader';
@@ -81,7 +81,7 @@ export default function Home() {
             </a>
           </div>
           <div className="order-1 xl:order-2 w-40 h-40 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 rounded-full border-8 border-black bg-gray-100 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl reveal hover:scale-105 transition-transform duration-500">
-              <span className="text-gray-400 font-bold uppercase tracking-widest">Photo</span>
+              <img src="/souvik-mandol/profile2.jpg" alt="Profile" className="w-full h-full object-cover" />
           </div>
         </section>
 
@@ -117,16 +117,44 @@ export default function Home() {
               <div key={job.id} className={`group border-l-4 border-black pl-6 md:pl-10 hover:border-black transition-all duration-300 hover:translate-x-2 reveal delay-${(index + 1) * 100}`}>
                 <h3 className="text-3xl font-bold uppercase tracking-tight mb-2 group-hover:text-gray-700 transition-colors">{job.title}</h3>
                 <p className="text-lg font-mono font-bold mb-6 flex items-center gap-4">
-                  <span className="bg-black text-white px-3 py-1 text-sm uppercase group-hover:bg-gray-800 transition-colors">{job.company}</span>
+                  {job.companyUrl ? (
+                    <a href={job.companyUrl} target="_blank" rel="noreferrer" className="bg-black text-white px-3 py-1 text-sm uppercase group-hover:bg-gray-800 transition-colors hover:underline">
+                      {job.company}
+                    </a>
+                  ) : (
+                    <span className="bg-black text-white px-3 py-1 text-sm uppercase group-hover:bg-gray-800 transition-colors">{job.company}</span>
+                  )}
                   <span className="text-gray-500">{job.duration}</span>
                 </p>
                 <ul className="text-lg space-y-4 max-w-3xl text-gray-800">
-                  {job.bullets.map((bullet, idx) => (
-                    <li key={idx} className="flex gap-4 hover:text-black transition-colors">
-                      <span className="mt-2 h-1.5 w-1.5 bg-black rounded-full shrink-0 group-hover:scale-150 transition-transform"></span>
-                      <p>{bullet}</p>
-                    </li>
-                  ))}
+                  {job.bullets.map((bullet, idx) => {
+                    const renderBulletWithLinks = () => {
+                      if (!job.bulletLinks) return bullet;
+                      
+                      let parts = [bullet];
+                      Object.entries(job.bulletLinks).forEach(([text, url]) => {
+                        parts = parts.flatMap(part => {
+                          if (typeof part !== 'string') return part;
+                          const regex = new RegExp(`(${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+                          return part.split(regex).map((chunk, i) => 
+                            chunk === text ? (
+                              <a key={`${idx}-${text}-${i}`} href={url} target="_blank" rel="noreferrer" className="text-black hover:underline font-semibold">
+                                {chunk}
+                              </a>
+                            ) : chunk
+                          );
+                        });
+                      });
+                      return parts;
+                    };
+                    
+                    return (
+                      <li key={idx} className="flex gap-4 hover:text-black transition-colors">
+                        <span className="mt-2 h-1.5 w-1.5 bg-black rounded-full shrink-0 group-hover:scale-150 transition-transform"></span>
+                        <p>{renderBulletWithLinks()}</p>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -224,6 +252,10 @@ export default function Home() {
             <a href={portfolioData.personal.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 hover:translate-x-4 transition-transform duration-300 w-max group">
               <span className="bg-black text-white p-3 group-hover:bg-gray-800 transition-colors"><Linkedin size={24} /></span>
               <span className="group-hover:underline underline-offset-8 decoration-4">{portfolioData.personal.linkedin}</span>
+            </a>
+            <a href={portfolioData.personal.resumeUrl} download className="flex items-center gap-4 hover:translate-x-4 transition-transform duration-300 w-max group">
+              <span className="bg-black text-white p-3 group-hover:bg-gray-800 transition-colors"><FileText size={24} /></span>
+              <span className="group-hover:underline underline-offset-8 decoration-4">{portfolioData.personal.resumeText}</span>
             </a>
           </div>
         </section>

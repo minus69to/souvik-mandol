@@ -8,9 +8,7 @@ export default function Sidebar({ activeSection, handleNavClick }) {
       <div>
         <div className="mb-12 group cursor-pointer" onClick={(e) => handleNavClick(e, '#home')}>
           <div className="w-24 h-24 rounded-full border-2 border-gray-700 bg-gray-900 flex items-center justify-center mb-6 overflow-hidden group-hover:border-white group-hover:scale-105 transition-all duration-500">
-            <span className="text-xs text-gray-500 uppercase tracking-widest group-hover:text-white transition-colors">
-              {portfolioData.personal.imagePlaceholderText}
-            </span>
+            <img src="/souvik-mandol/profile.jpg" alt="Profile" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tighter uppercase leading-none mb-2 group-hover:text-gray-300 transition-colors">
             {portfolioData.personal.firstName}<br/>{portfolioData.personal.lastName}

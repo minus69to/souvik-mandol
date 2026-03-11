@@ -2,13 +2,15 @@ export const portfolioData = {
   personal: {
     firstName: "Souvik",
     lastName: "Mandol",
-    role: "Software Engineer",
+    // role: "Software Engineer",
     email: "souvikmt99@gmail.com",
     phone: "01880701243",
-    github: "[github.com/minus69to](https://github.com/minus69to)",
-    linkedin: "[linkedin.com/in/souvikmandol](https://linkedin.com/in/souvikmandol)",
-    githubUrl: "[https://github.com/minus69to](https://github.com/minus69to)",
-    linkedinUrl: "[https://linkedin.com/in/souvikmandol](https://linkedin.com/in/souvikmandol)",
+    github: "github.com/minus69to",
+    linkedin: "linkedin.com/in/souvikmandol",
+    githubUrl: "https://github.com/minus69to",
+    linkedinUrl: "https://linkedin.com/in/souvikmandol",
+    resumeText: "Resume",
+    resumeUrl: "/souvik-mandol/resume.pdf",
     imagePlaceholderText: "Photo", 
   },
   nav: [
@@ -23,40 +25,58 @@ export const portfolioData = {
   ],
   landing: {
     tag: "Welcome",
-    headline: "Turning complex problems into elegant software solutions.",
-    subheadline: "Software Engineer & Computer Science student specializing in AI, Machine Learning, and scalable Web Development.",
+    headline: "GOT AN IDEA? LET'S BUILD IT.",
+    subheadline: "Hi! This is Souvik, a remote software engineer at Merilsoft LLC, passionate about AI, software engineering, system design, and robotics.",
     ctaText: "View My Work"
   },
   about: {
-    tag: "01. About",
-    headline: "Driven by logic, automation, and artificial intelligence.",
-    description: "I am a Software Engineer currently completing my B.Sc. in Computer Science and Engineering at BUET. I have a strong passion for data science, automation, artificial intelligence, and competitive problem-solving. Fluent in English and highly adaptable, I thrive on building intelligent systems and robust applications from the ground up."
+    tag: "About",
+    headline: "SO… WHAT DO I ACTUALLY DO?",
+    description: "I’m a remote software engineer and a final year CSE student at BUET. I spend most of my time teaching computers how to do useful things using code, data, and a bit of stubborn debugging. I enjoy AI, automation, and system design, mainly because solving complex problems is more fun than pretending they don’t exist."
   },
   education: {
-    tag: "02. Education",
+    tag: "Education",
     items: [
       {
         id: 1,
-        degree: "Bachelor of Science in Computer Science and Engineering",
+        degree: "BSC in Computer Science and Engineering",
         institution: "Bangladesh University of Engineering and Technology (BUET)",
         duration: "2022 - Present",
         details: "Level - 4, Term - 2"
+      },
+      {
+        id: 2,
+        degree: "Higher Secondary",
+        institution: "Dhaka Residential Model College",
+        duration: "2018 - 2019"
+      },
+      {
+        id: 3,
+        degree: "Secondary School",
+        institution: "Bagerhat Government High School",
+        duration: "2013 - 2018"
       }
     ]
   },
   experience: {
-    tag: "03. Experience",
+    tag: "Experience",
     jobs: [
       {
         id: 1,
         title: "Software Engineer",
-        company: "MerilSoft",
+        company: "MerilSoft LLC",
+        companyUrl: "https://merilsoft.com/",
         duration: "Dec 2025 - Present",
         bullets: [
           "Developed an AI-driven magazine generation platform - Magazine Works.",
           "Implemented file-handling systems on AWS and integrated AI-driven features using Google Vertex AI Studio.",
           "Currently working on a restaurant system integrating existing online delivery platforms such as Uber Eats and DoorDash, along with a POS solution."
-        ]
+        ],
+        bulletLinks: {
+          "Magazine Works": "https://magazineworks.com/",
+          "restaurant system": "https://zilluhalalfood.merilsoft.com/",
+          "POS": "https://postest.merilsoft.com/"
+        }
       }
     ]
   },
