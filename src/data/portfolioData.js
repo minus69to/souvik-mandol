@@ -32,7 +32,16 @@ export const portfolioData = {
   about: {
     tag: "About",
     headline: "SO… WHAT DO I ACTUALLY DO?",
-    description: "I’m a remote software engineer and a final year CSE student at BUET. I spend most of my time teaching computers how to do useful things using code, data, and a bit of stubborn debugging. I enjoy AI, automation, and system design, mainly because solving complex problems is more fun than pretending they don’t exist."
+    description: "I’m a remote software engineer and a final year CSE student at BUET. I spend most of my time teaching computers how to do useful things using code, data, and a bit of stubborn debugging. I enjoy AI, automation, and system design, mainly because solving complex problems is more fun than pretending they don’t exist.",
+    extrasTitle: "Beyond the terminal and the debugger:",
+    extras: [
+        "Mini-marathon runner aiming for a full marathon and maybe a triathlon someday.",
+        "Not a foodie, more of a food hunter exploring new restaurants and cuisines.",
+        "Cinephile who enjoys catching movies at Cineplex whenever possible.",
+        "Beginner hobbyist photographer. Some shots live on my Instagram!",
+        "Traveller who prefers hiking and hopes to reach ABC someday.",
+        "New to the book-reading league but enjoying it a lot."
+    ]
   },
   education: {
     tag: "Education",

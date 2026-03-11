@@ -90,6 +90,17 @@ export default function Home() {
           <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.3em] mb-6 reveal">{portfolioData.about.tag}</h2>
           <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-8 reveal delay-100">{portfolioData.about.headline}</h3>
           <p className="text-lg md:text-xl leading-relaxed max-w-3xl text-gray-800 font-medium reveal delay-200 hover:text-black transition-colors">{portfolioData.about.description}</p>
+          <div className="mt-10 max-w-3xl reveal delay-300">
+            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-gray-500 mb-4">{portfolioData.about.extrasTitle}</h4>
+            <ul className="space-y-3 text-lg text-gray-800 font-medium">
+              {portfolioData.about.extras.map((item, index) => (
+                <li key={index} className="flex items-start gap-4 hover:text-black transition-colors">
+                  <span className="mt-2 h-1.5 w-1.5 bg-black rounded-full shrink-0"></span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         {/* EDUCATION */}
