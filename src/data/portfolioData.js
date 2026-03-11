@@ -63,7 +63,7 @@ export const portfolioData = {
         id: 3,
         degree: "Secondary School",
         institution: "Bagerhat Government High School",
-        duration: "2013 - 2018"
+        duration: "2013 - 2017"
       }
     ]
   },
