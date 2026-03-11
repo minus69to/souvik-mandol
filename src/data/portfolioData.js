@@ -90,7 +90,7 @@ export const portfolioData = {
     ]
   },
   projects: {
-    tag: "04. Projects",
+    tag: "Projects",
     items: [
       {
         id: 1,
@@ -145,7 +145,7 @@ export const portfolioData = {
     ]
   },
   research: {
-    tag: "05. Research",
+    tag: "Research",
     items: [
       {
         id: 1,
@@ -164,7 +164,7 @@ export const portfolioData = {
     ]
   },
   skills: {
-    tag: "06. Technical Skills",
+    tag: "Technical Skills",
     categories: [
       { name: "Programming", items: "Python, C, C++, Java, Fortran, JavaScript, LaTeX, HTML, SQL" },
       { name: "Web Development", items: "React, Laravel, Next.js, Node.js, Express.js, CSS, Spring Boot, Azure, AWS" },
@@ -186,7 +186,7 @@ export const portfolioData = {
     ]
   },
   contact: {
-    tag: "08. Contact",
-    headline: "Let's build something great."
+    tag: "Contact",
+    headline: "Let's build something great!"
   }
 };
