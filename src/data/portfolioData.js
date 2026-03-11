@@ -175,7 +175,7 @@ export const portfolioData = {
     ]
   },
   certifications: {
-    tag: "07. Certifications",
+    tag: "Certifications",
     items: [
       "Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization",
       "Neural Networks and Deep Learning",
