@@ -158,7 +158,7 @@ export const portfolioData = {
         id: 2,
         status: "Accepted",
         title: "Machine Learning-Based Ecological Sustainability Analysis Using ELR",
-        description: "Conducted a comprehensive machine learning study to analyze and predict ecological sustainability across 27 EU countries using Ecological Load Ratio (ELR). Achieved over 98% classification accuracy and R²>0.97.",
+        description: "Conducted a comprehensive machine learning study to analyze and predict ecological sustainability across 27 EU countries using Ecological Load Ratio (ELR). Achieved over 98% classification accuracy and R² > 0.97.",
         tags: ["Machine Learning", "PSO", "Clustering", "Supervised Regression"]
       }
     ]
