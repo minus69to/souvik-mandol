@@ -11,10 +11,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-   export const metadata = {
-     title: "Souvik Mandol | Software Engineer",
-     description: "Software engineer at BRTC, BUET building adaptive traffic signal control for Dhaka. BUET CSE graduate interested in ML, AI and systems.",
-   };
+export const metadata = {
+  title: "Souvik Mandol | Software Engineer",
+  description: "Software engineer at BRTC, BUET building adaptive traffic signal control for Dhaka. BUET CSE graduate interested in ML, AI and systems.",
+};
 
 export default function RootLayout({ children }) {
   return (
