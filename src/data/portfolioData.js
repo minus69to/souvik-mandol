@@ -2,7 +2,7 @@ export const portfolioData = {
   personal: {
     firstName: "Souvik",
     lastName: "Mandol",
-    // role: "Software Engineer",
+    role: "Junior Engineer, BRTC BUET",
     email: "souvikmt99@gmail.com",
     phone: "+880 1880-701243",
     github: "github.com/minus69to",
