@@ -230,6 +230,11 @@ export default function Home() {
                   <h3 className="text-2xl font-bold uppercase tracking-tight">{res.title}</h3>
                 </div>
                 <p className="text-lg leading-relaxed text-gray-800 mb-6">{res.description}</p>
+                {res.paperUrl && (
+                  <a href={res.paperUrl} target="_blank" rel="noreferrer" className="inline-block mb-6 text-sm font-mono font-bold uppercase underline underline-offset-4 hover:text-gray-600 transition-colors">
+                    Read the paper
+                  </a>
+                )}
                 <div className="flex gap-2 flex-wrap">
                   {res.tags.map(tag => (
                     <span key={tag} className="text-xs font-bold text-gray-600 uppercase tracking-wider border border-gray-300 px-2 py-1 hover:border-black transition-colors">#{tag}</span>
