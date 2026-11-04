@@ -13,4 +13,11 @@ const eslintConfig = defineConfig([
   ]),
 ]);
 
+// Three.js scenes mutate memoised objects (vectors, matrices, instanced
+// attributes) inside useFrame on purpose; the React Compiler rule does not apply.
+eslintConfig.push({
+  files: ["src/components/scenes/**/*.jsx"],
+  rules: { "react-hooks/immutability": "off" },
+});
+
 export default eslintConfig;

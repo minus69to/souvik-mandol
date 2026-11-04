@@ -12,7 +12,7 @@
 import * as React from "react";
 import * as THREE from "three";
 import { Edges, Line } from "@react-three/drei";
-import { inkVertexShader, inkFragmentShader, makeInkUniforms, palette } from "./ink";
+import { inkVertexShader, inkFragmentShader, makeInkUniforms, palette } from "./inkShader";
 
 export const InkContext = React.createContext({ inverted: false });
 

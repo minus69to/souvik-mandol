@@ -35,11 +35,13 @@ function Inner({ scene, trackRef, inverted, sceneProps }) {
 export default function SceneView({ scene, inverted = false, interactive = false, fallback = null, sceneProps, className = "", style, children, ...rest }) {
   const ref = React.useRef(null);
   const { enabled } = useMotionPrefs();
+  // Positioned by the caller (absolute/fixed/sticky) or relative by default.
+  const positioned = /\b(absolute|fixed|sticky|relative)\b/.test(className);
   return (
     <div
       ref={ref}
-      className={className}
-      style={{ position: "relative", pointerEvents: interactive ? "auto" : "none", touchAction: interactive ? "pan-y" : "auto", ...style }}
+      className={`${positioned ? "" : "relative "}${className}`}
+      style={{ pointerEvents: interactive ? "auto" : "none", touchAction: interactive ? "pan-y" : "auto", ...style }}
       data-scene={scene}
       {...rest}
     >
