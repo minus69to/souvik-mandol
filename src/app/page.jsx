@@ -10,6 +10,7 @@ import Skills from "../components/sections/Skills";
 import Education from "../components/sections/Education";
 import Contact from "../components/sections/Contact";
 import { useReveal } from "../hooks/useReveal";
+import { ScrollProgress, IntroWipe } from "../components/fx/Chrome";
 
 export default function Home() {
   useReveal();
@@ -22,7 +23,9 @@ export default function Home() {
 
   return (
     <div className="grain font-sans">
+      <IntroWipe />
       <Nav onNavigate={navigate} />
+      <ScrollProgress />
       <main id="main">
         <Hero onNavigate={navigate} />
         <About />

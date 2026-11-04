@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Code2, ExternalLink } from "lucide-react";
 import SceneView from "../three/SceneView";
+import TiltCard from "../fx/TiltCard";
 import { SectionHeader } from "../SectionHeader";
 import { portfolioData } from "../../data/portfolioData";
 
@@ -14,9 +15,11 @@ export default function Projects() {
         <SectionHeader index={3} tag={projects.tag} headline={projects.headline} />
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
           {projects.items.map((p, i) => (
-            <article
+            <TiltCard
+              as="article"
               key={p.id}
-              className={`group reveal border-2 border-black bg-white flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-ink ${p.featured ? "md:col-span-2 xl:col-span-2" : ""}`}
+              max={5}
+              className={`group reveal border-2 border-black bg-white flex flex-col hover:shadow-ink ${p.featured ? "md:col-span-2 xl:col-span-2" : ""}`}
               style={{ transitionDelay: `${(i % 3) * 60}ms` }}
             >
               <SceneView
@@ -27,7 +30,7 @@ export default function Projects() {
               <div className="p-6 md:p-7 flex flex-col flex-1">
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div>
-                    <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight leading-tight">{p.title}</h3>
+                    <h3 className="sheen-text w-max max-w-full text-xl md:text-2xl font-black uppercase tracking-tight leading-tight">{p.title}</h3>
                     {p.subtitle && <p className="text-xs font-mono uppercase tracking-widest text-gray-500 mt-1">{p.subtitle}</p>}
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -42,11 +45,11 @@ export default function Projects() {
                 <p className="text-sm md:text-base text-gray-700 leading-relaxed mt-3 mb-6 flex-1">{p.description}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {p.tags.map((t) => (
-                    <span key={t} className="text-[10px] font-mono uppercase tracking-wider border border-black px-2 py-0.5 group-hover:bg-black group-hover:text-white transition-colors">{t}</span>
+                    <span key={t} className="chip text-[10px] font-mono uppercase tracking-wider border border-black px-2 py-0.5 transition-colors">{t}</span>
                   ))}
                 </div>
               </div>
-            </article>
+            </TiltCard>
           ))}
         </div>
       </div>

@@ -83,3 +83,60 @@ body { background: var(--paper); color: var(--ink); overflow-x: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink { animation: none; }
 }
+
+/* ───────────── Interaction FX ───────────── */
+
+/* Custom cursor: hide the native one on fine pointers */
+html.cursor-fx, html.cursor-fx * { cursor: none !important; }
+
+/* Petrol sheen (the only colour on the site): iridescent film that follows the cursor.
+   Declared on the elements that use it so var(--mx)/var(--my) resolve per element. */
+.sheen, .chip::after {
+  --sheen: conic-gradient(from 200deg at var(--mx, 50%) var(--my, 50%),
+    #ffb3c6, #ffd9a8, #fff3b0, #c9f5d4, #b3e0ff, #d9c4ff, #ffb3c6);
+}
+.tilt { position: relative; transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s; }
+.tilt:hover { transition: transform 0.08s linear, box-shadow 0.3s; }
+.sheen {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  transition: opacity 0.35s;
+  background:
+    radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.55), rgba(255,255,255,0) 42%),
+    var(--sheen);
+  mix-blend-mode: multiply;
+  filter: saturate(1.1);
+  opacity: 0;
+}
+.tilt:hover .sheen { opacity: 0.75; }
+.sheen-strong .sheen { mix-blend-mode: hard-light; }
+.sheen-strong:hover .sheen { opacity: 0.35; }
+
+/* Headline sweep: ink text picks up the sheen on hover */
+.sheen-text {
+  background-image: linear-gradient(100deg, var(--ink) 0%, var(--ink) 38%, #ff5c8a 46%, #ffe66d 50%, #4bc0ff 54%, #a66cff 58%, var(--ink) 66%, var(--ink) 100%);
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  transition: background-position 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sheen-text:hover { background-position: 0% 0; }
+.inverted .sheen-text { --ink: #ffffff; }
+
+/* Chips & tags pick up a sheen on hover */
+.chip { position: relative; overflow: hidden; isolation: isolate; }
+.chip::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0;
+  background: var(--sheen); transition: opacity 0.3s; mix-blend-mode: multiply;
+}
+.chip:hover::after { opacity: 0.9; }
+
+/* Intro wipe */
+@keyframes wipe-up { 0% { clip-path: inset(0 0 0 0); } 100% { clip-path: inset(0 0 100% 0); } }
+@keyframes name-in { 0% { opacity: 0; letter-spacing: 0.9em; } 30% { opacity: 1; letter-spacing: 0.5em; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.intro-wipe { animation: wipe-up 0.7s cubic-bezier(0.77, 0, 0.18, 1) 0.75s both; }
+.intro-name { animation: name-in 1.1s ease both; }
+
+/* Paper background shows through */
+body { background: transparent; }
+html { background: var(--paper); }

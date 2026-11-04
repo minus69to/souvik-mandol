@@ -31,16 +31,21 @@ export const InkMaterial = React.forwardRef(function InkMaterial(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+  const matRef = React.useRef(null);
+  React.useImperativeHandle(ref, () => matRef.current);
   React.useEffect(() => {
-    uniforms.uInvert.value = inverted ? 1 : 0;
-    uniforms.uHatch.value = hatch;
-    uniforms.uStrength.value = strength;
-    uniforms.uFill.value = fill;
-    uniforms.uOpacity.value = opacity;
-  }, [inverted, hatch, strength, fill, opacity, uniforms]);
+    // three.js clones the uniforms object on construction: update the live one.
+    const u = matRef.current?.uniforms;
+    if (!u) return;
+    u.uInvert.value = inverted ? 1 : 0;
+    u.uHatch.value = hatch;
+    u.uStrength.value = strength;
+    u.uFill.value = fill;
+    u.uOpacity.value = opacity;
+  }, [inverted, hatch, strength, fill, opacity]);
   return (
     <shaderMaterial
-      ref={ref}
+      ref={matRef}
       attach="material"
       uniforms={uniforms}
       vertexShader={inkVertexShader}

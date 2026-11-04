@@ -26,7 +26,7 @@ export default function Skills() {
               </h3>
               <ul className="flex flex-wrap gap-1.5">
                 {c.items.map((s) => (
-                  <li key={s} className="text-[11px] font-mono uppercase tracking-wider border border-black px-2 py-0.5 hover:bg-black hover:text-white transition-colors cursor-default">{s}</li>
+                  <li key={s} data-cursor className="chip text-[11px] font-mono uppercase tracking-wider border border-black px-2 py-0.5 transition-colors">{s}</li>
                 ))}
               </ul>
             </div>
