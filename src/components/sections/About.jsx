@@ -3,6 +3,7 @@ import { SectionHeader, Tag } from "../SectionHeader";
 import { RichText } from "../../lib/richText";
 import { portfolioData } from "../../data/portfolioData";
 import { asset } from "../../lib/site";
+import TiltCard from "../fx/TiltCard";
 
 const { about, personal } = portfolioData;
 
@@ -20,7 +21,7 @@ export default function About() {
           </div>
 
           <div className="mt-12 max-w-3xl reveal delay-300">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-gray-500 mb-5">{about.extrasTitle}</h3>
+            <h3 className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-gray-600 mb-5">{about.extrasTitle}</h3>
             <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-base md:text-lg text-gray-800 font-medium">
               {about.extras.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -34,12 +35,12 @@ export default function About() {
 
         <div className="lg:col-span-5 flex items-start lg:justify-end">
           <figure className="reveal delay-200 w-full max-w-sm pr-3 sm:pr-0">
-            <div className="relative">
+            <TiltCard max={6} lift={14} sheen className="sheen-strong relative">
               <div className="absolute -inset-2 sm:-inset-3 border-2 border-black translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3 hatch opacity-30" aria-hidden />
               <div className="relative border-4 border-black bg-white overflow-hidden aspect-[4/5]">
                 <img src={asset(personal.photo)} alt={`${personal.firstName} ${personal.lastName}`} className="w-full h-full object-cover grayscale contrast-125" />
               </div>
-            </div>
+            </TiltCard>
             <figcaption className="mt-8 flex flex-col gap-1 text-[11px] font-mono uppercase tracking-widest text-gray-600">
               <span className="font-bold text-black">{personal.role}</span>
               <span>{personal.location} · {personal.languages.join(" · ")}</span>

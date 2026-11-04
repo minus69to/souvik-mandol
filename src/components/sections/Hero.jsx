@@ -4,6 +4,7 @@ import { ArrowDown, Github, Linkedin, Mail } from "lucide-react";
 import SceneView from "../three/SceneView";
 import { portfolioData } from "../../data/portfolioData";
 import { useMotionPrefs } from "../three/useMotionPrefs";
+import Magnetic from "../fx/Magnetic";
 
 const { landing, personal } = portfolioData;
 
@@ -51,7 +52,7 @@ export default function Hero({ onNavigate }) {
       <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10 min-h-[calc(100vh-4rem)] flex flex-col justify-end lg:justify-center pt-[50vh] lg:pt-0 pb-20 lg:pb-24">
         <div className="lg:w-[46%] lg:pr-8">
           <p className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-gray-600 mb-5 reveal">{landing.tag}</p>
-          <h1 className="text-[2.4rem] leading-[0.92] sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-[5.2rem] font-black uppercase tracking-tighter reveal delay-100 bg-white/85 lg:bg-transparent inline">
+          <h1 className="sheen-text text-[2.4rem] leading-[0.92] sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-[5.2rem] font-black uppercase tracking-tighter reveal delay-100 inline">
             {landing.headline}
           </h1>
           <p className="mt-5 text-base md:text-lg leading-relaxed text-gray-700 font-medium max-w-xl reveal delay-200">
@@ -62,21 +63,25 @@ export default function Hero({ onNavigate }) {
             <Typewriter words={personal.researchInterests} />
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-4 reveal delay-300">
-            <a
-              href="#projects"
-              onClick={(e) => { e.preventDefault(); onNavigate("#projects"); }}
-              className="inline-flex items-center gap-3 bg-black text-white px-7 py-4 font-bold uppercase tracking-widest text-sm border-2 border-black hover:bg-white hover:text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-ink"
-            >
-              {landing.ctaText} <ArrowDown size={16} />
-            </a>
-            {personal.openToResearch && (
+            <Magnetic>
               <a
-                href="#research"
-                onClick={(e) => { e.preventDefault(); onNavigate("#research"); }}
-                className="inline-flex items-center gap-3 bg-white text-black px-7 py-4 font-bold uppercase tracking-widest text-sm border-2 border-black hover:bg-black hover:text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-ink"
+                href="#projects"
+                onClick={(e) => { e.preventDefault(); onNavigate("#projects"); }}
+                className="inline-flex items-center gap-3 bg-black text-white px-7 py-4 font-bold uppercase tracking-widest text-sm border-2 border-black hover:bg-white hover:text-black transition-colors duration-300 hover:shadow-ink"
               >
-                {landing.secondaryCtaText}
+                {landing.ctaText} <ArrowDown size={16} />
               </a>
+            </Magnetic>
+            {personal.openToResearch && (
+              <Magnetic>
+                <a
+                  href="#research"
+                  onClick={(e) => { e.preventDefault(); onNavigate("#research"); }}
+                  className="inline-flex items-center gap-3 bg-white text-black px-7 py-4 font-bold uppercase tracking-widest text-sm border-2 border-black hover:bg-black hover:text-white transition-colors duration-300 hover:shadow-ink"
+                >
+                  {landing.secondaryCtaText}
+                </a>
+              </Magnetic>
             )}
             <div className="flex items-center gap-4 ml-1 text-black">
               <a href={personal.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub" className="hover:-translate-y-1 transition-transform"><Github size={22} /></a>
