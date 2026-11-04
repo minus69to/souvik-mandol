@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Souvik Mandol — Portfolio
 
-## Getting Started
+A monochrome, ink-on-paper 3D portfolio. Every section is accompanied by a procedurally drawn
+3D glyph (an adaptive traffic intersection, the BRTC network topology, a walking gait figure,
+a citation funnel, …) rendered in real time with three.js through one shared WebGL canvas.
 
-First, run the development server:
+Live: https://minus69to.github.io/souvik-mandol/
+
+## Updating your information (the only file you need)
+
+**Edit `src/data/portfolioData.js`.** Everything on the site is read from it:
+name, links, hero text, about, experience, projects, research, skills, education,
+certifications and contact. The 3D / design code never needs to change.
+
+Quick reference:
+
+| What | Where in `portfolioData.js` |
+| --- | --- |
+| Name, role, email, socials, CV file, photos | `personal` |
+| Menu items | `nav` |
+| Hero headline, subheadline, scrolling ticker facts | `landing` |
+| About text, hobbies, research interests | `about`, `personal.researchInterests` |
+| Jobs (+ the expandable "inside the platform" panel) | `experience.jobs` |
+| Projects | `projects.items` |
+| Research, thesis, publications, collaboration banner | `research` |
+| Skill categories | `skills.categories` |
+| Degrees | `education.items` |
+| Certificates (with verify links) | `certifications.groups` |
+| Contact text | `contact` |
+
+Rules of thumb:
+
+- Put images and the CV in `public/` and reference them by file name only
+  (`photo: "profile2.jpg"`, `resumeFile: "resume.pdf"`).
+- Leave a URL as `""` to hide that button (e.g. `demoUrl: ""`).
+- Each project / research item has a `scene` key that picks its 3D glyph.
+  The list of available glyph names is at the bottom of the data file (`SCENES`).
+  Reuse any of them for new items.
+- `[label](https://url)` links work inside `about.extras`.
+- Set `personal.openToResearch` to `false` to hide the collaboration banner and hero button.
+
+Commit and push to `main`; GitHub Actions builds and deploys the site automatically.
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000/souvik-mandol/ (the repo name is the base path for GitHub Pages).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- `/souvik-mandol/lab?scene=gait&inverted=1&size=card` previews a single 3D scene.
+- Add `?3d=off` to any page to see the no-WebGL fallback.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`npm run build` produces the static site in `out/`.
 
-## Learn More
+## How it is built
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js 16 (static export) · React 19 · Tailwind 4
+- three.js + @react-three/fiber + @react-three/drei
+- One fixed `<Canvas>` (`src/components/three/SceneCanvas.jsx`) with drei `View` portals, so
+  dozens of 3D glyphs share one WebGL context and only visible ones are drawn.
+- `src/components/three/Ink.jsx` holds the shared "ink" primitives: a custom cross-hatching
+  shader (`ink.js`), outlined meshes, wireframes and lines. Scenes never use colour.
+- Scenes live in `src/components/scenes/`, one file per glyph, registered in `registry.js`.
+- Reduced-motion users get static poses; browsers without WebGL get hatched placeholders.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Previous design
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The earlier black-and-white sidebar version is preserved on the branch
+`backup/main-brutalist-2026-11`.
