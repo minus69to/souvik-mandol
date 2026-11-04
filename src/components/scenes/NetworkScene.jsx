@@ -21,14 +21,24 @@ import { InkMesh, InkMaterial, InkLine, InkFlat, useInk } from "../three/Ink";
 import { useViewProgress } from "../three/useViewProgress";
 
 /* ------------------------------------------------------------------ layout */
-const RX = 4.6; // fibre ring half-width
-const RZ = 2.25; // fibre ring half-depth
+const RX = 4.0; // fibre ring half-width
+const RZ = 2.1; // fibre ring half-depth
+const CAM_DIR = new THREE.Vector3(0, 0.78, 1).normalize();
+const CAM_FOV = 30;
+const FIT_HALF_W = 5.35; // half extent of the drawing (x) – leaves room for sway/parallax
+const FIT_HALF_H = 2.45; // half extent of the drawing as projected (y)
 const THETAS = [0.66, Math.PI - 0.66, Math.PI + 0.66, -0.66];
 const SERVER = new THREE.Vector3(-0.5, 0, -0.1);
 const SERVER_SIZE = [0.62, 1.55, 0.56];
 const DB = new THREE.Vector3(0.58, 0, 0.38);
-const TABLET = new THREE.Vector3(2.15, 1.35, 1.05);
+const TABLET = new THREE.Vector3(-1.95, 1.3, 0.75);
 const UP = new THREE.Vector3(0, 1, 0);
+// two hollow digit cells on the countdown panel (line segments)
+const DIGIT_BOXES = [-0.085, 0.015].flatMap((x0) => {
+  const x1 = x0 + 0.07;
+  const z = 0.021;
+  return [[x0, 0.02, z], [x1, 0.02, z], [x1, 0.02, z], [x1, 0.085, z], [x1, 0.085, z], [x0, 0.085, z], [x0, 0.085, z], [x0, 0.02, z]];
+});
 
 function ringPoint(th, out = new THREE.Vector3()) {
   const m = 1 + 0.05 * Math.sin(3 * th + 0.7) + 0.035 * Math.sin(5 * th + 2.1);
@@ -103,15 +113,15 @@ function buildLayout() {
     const right = new THREE.Vector3(-out.z, 0, out.x);
     const at = (a, b) => c.clone().addScaledVector(out, a).addScaledVector(right, b);
     const chip = c.clone();
-    const jetson = at(0.62, -0.42);
-    const camPole = at(0.3, 0.58);
-    const panel = at(0.92, 0.22);
-    const signal = at(1.0, -0.3);
+    const jetson = at(0.58, -0.4);
+    const camPole = at(0.28, 0.56);
+    const panel = at(0.84, 0.2);
+    const signal = at(0.92, -0.26);
     const camTop = camPole.clone().setY(1.05);
     // camera points at the junction (the chip) from its pole
     const camDir = chip.clone().setY(0.1).sub(camTop).normalize();
     const camQ = new THREE.Quaternion().setFromRotationMatrix(
-      new THREE.Matrix4().lookAt(camTop, chip.clone().setY(0.1), UP)
+      new THREE.Matrix4().lookAt(chip.clone().setY(0.1), camTop, UP)
     );
     const apex = camTop.clone().addScaledVector(camDir, 0.24);
     const fovA = chip.clone().addScaledVector(right, 0.32).addScaledVector(out, -0.08);
@@ -124,7 +134,7 @@ function buildLayout() {
     return { k, th, c, out, right, chip, jetson, camPole, camTop, camQ, apex, fovA, fovB, panel, signal, spoke, lock, local };
   });
 
-  const tabletLink = new Path([TABLET.clone().add(new THREE.Vector3(-0.25, -0.1, -0.1)), SERVER.clone().setY(SERVER_SIZE[1] - 0.1)]);
+  const tabletLink = new Path([TABLET.clone().add(new THREE.Vector3(0.25, -0.1, -0.1)), SERVER.clone().setY(SERVER_SIZE[1] - 0.1)]);
   return { ring, clusters, tabletLink, serverBase };
 }
 
@@ -157,7 +167,7 @@ function Server() {
   return (
     <group>
       {/* on-premise rack – hatched */}
-      <InkMesh position={[SERVER.x, h / 2, SERVER.z]} hatch={4} strength={1} fill={0.06}>
+      <InkMesh position={[SERVER.x, h / 2, SERVER.z]} hatch={6} strength={1} fill={0.05}>
         <boxGeometry args={[w, h, d]} />
       </InkMesh>
       <InkLine points={rackLines} segments lineWidth={0.9} opacity={0.85} />
@@ -166,7 +176,7 @@ function Server() {
         <meshBasicMaterial color={ink} />
       </instancedMesh>
       {/* broker / database cylinder */}
-      <InkMesh position={[DB.x, 0.42, DB.z]} hatch={6} strength={0.55} fill={0.02} threshold={40}>
+      <InkMesh position={[DB.x, 0.42, DB.z]} hatch={7} strength={0.5} fill={0.02} threshold={40}>
         <cylinderGeometry args={[0.34, 0.34, 0.84, 28]} />
       </InkMesh>
       <InkLine points={circlePts(0.34, 40, 0.56, DB.x, DB.z)} lineWidth={0.9} />
@@ -189,9 +199,9 @@ function Tablet() {
     return pts;
   }, []);
   return (
-    <group position={TABLET.toArray()} rotation={[-0.3, -0.55, 0.06]}>
+    <group position={TABLET.toArray()} rotation={[-0.3, 0.5, -0.06]}>
       <RoundedBox args={[0.64, 0.44, 0.036]} radius={0.06} smoothness={3}>
-        <InkMaterial hatch={5} strength={0.8} fill={0.02} />
+        <InkMaterial hatch={7} strength={0.35} fill={0.02} />
       </RoundedBox>
       <InkLine points={outline} lineWidth={1} position={[0, 0, 0.019]} />
       <InkLine points={screen} lineWidth={0.8} position={[0, 0, 0.02]} />
@@ -217,7 +227,7 @@ function Tablet() {
 function Padlock({ position }) {
   return (
     <group position={position.toArray()}>
-      <InkMesh position={[0, 0, 0]} hatch={4} strength={0.9} fill={0.12}>
+      <InkMesh position={[0, 0, 0]} hatch={5} strength={0.9} fill={0.12}>
         <boxGeometry args={[0.17, 0.14, 0.07]} />
       </InkMesh>
       <InkFlat position={[0, 0.07, 0]}>
@@ -238,7 +248,7 @@ function Cluster({ c, lampRef, barRef }) {
   return (
     <group>
       {/* STM32 controller chip */}
-      <InkMesh position={[chip.x, 0.045, chip.z]} hatch={5} strength={0.75} fill={0.04}>
+      <InkMesh position={[chip.x, 0.045, chip.z]} hatch={6} strength={0.6} fill={0.04}>
         <boxGeometry args={[0.46, 0.075, 0.46]} />
       </InkMesh>
       <InkLine points={roundedRectPts(0.3, 0.3, 0.02, 2).map(([x, y]) => [chip.x + x, 0.085, chip.z + y])} lineWidth={0.8} opacity={0.8} />
@@ -247,10 +257,10 @@ function Cluster({ c, lampRef, barRef }) {
       </InkFlat>
 
       {/* Jetson edge-vision unit: box + lens */}
-      <InkMesh position={[c.jetson.x, 0.12, c.jetson.z]} hatch={5} strength={0.75} fill={0.03}>
+      <InkMesh position={[c.jetson.x, 0.12, c.jetson.z]} hatch={6} strength={0.6} fill={0.03}>
         <boxGeometry args={[0.34, 0.24, 0.26]} />
       </InkMesh>
-      <InkMesh position={[c.jetson.x, 0.13, c.jetson.z + 0.13 + 0.035]} rotation={[Math.PI / 2, 0, 0]} hatch={4} strength={0.9} fill={0.08} threshold={40}>
+      <InkMesh position={[c.jetson.x, 0.13, c.jetson.z + 0.13 + 0.035]} rotation={[Math.PI / 2, 0, 0]} hatch={5} strength={0.8} fill={0.08} threshold={40}>
         <cylinderGeometry args={[0.07, 0.07, 0.07, 18]} />
       </InkMesh>
       <InkFlat position={[c.jetson.x, 0.13, c.jetson.z + 0.13 + 0.071]}>
@@ -270,17 +280,17 @@ function Cluster({ c, lampRef, barRef }) {
 
       {/* camera: cone on a pole, looking at the junction */}
       <group position={c.camTop.toArray()} quaternion={c.camQ}>
-        <InkMesh position={[0, 0, 0.1]} rotation={[Math.PI / 2, 0, 0]} hatch={4} strength={0.9} fill={0.05} threshold={50}>
-          <coneGeometry args={[0.085, 0.26, 14]} />
+        <InkMesh position={[0, 0, 0.09]} rotation={[Math.PI / 2, 0, 0]} hatch={5} strength={0.8} fill={0.05} threshold={50}>
+          <coneGeometry args={[0.075, 0.22, 14]} />
         </InkMesh>
-        <InkFlat position={[0, 0, -0.04]}>
-          <sphereGeometry args={[0.03, 8, 6]} />
-        </InkFlat>
+        <InkMesh position={[0, 0, -0.06]} rotation={[Math.PI / 2, 0, 0]} hatch={5} strength={0.6} fill={0.03} threshold={40}>
+          <cylinderGeometry args={[0.045, 0.045, 0.1, 12]} />
+        </InkMesh>
       </group>
 
       {/* countdown panel on a post */}
       <group position={[c.panel.x, 0.62, c.panel.z]}>
-        <InkMesh hatch={5} strength={0.7} fill={0.02}>
+        <InkMesh hatch={6} strength={0.55} fill={0.02}>
           <boxGeometry args={[0.36, 0.26, 0.035]} />
         </InkMesh>
         <InkLine points={roundedRectPts(0.3, 0.2, 0.015, 2).map(([x, y]) => [x, y, 0.019])} lineWidth={0.8} opacity={0.8} />
@@ -292,13 +302,12 @@ function Cluster({ c, lampRef, barRef }) {
         </group>
         <InkLine points={[[-0.13, -0.05, 0.021], [0.13, -0.05, 0.021]]} lineWidth={0.7} opacity={0.6} />
         {/* two digit boxes (hollow) */}
-        <InkLine points={[[-0.085, 0.02, 0.021], [-0.015, 0.02, 0.021], [-0.015, 0.085, 0.021], [-0.085, 0.085, 0.021], [-0.085, 0.02, 0.021]]} lineWidth={0.7} opacity={0.8} />
-        <InkLine points={[[0.015, 0.02, 0.021], [0.085, 0.02, 0.021], [0.085, 0.085, 0.021], [0.015, 0.085, 0.021], [0.015, 0.02, 0.021]]} lineWidth={0.7} opacity={0.8} />
+        <InkLine points={DIGIT_BOXES} segments lineWidth={0.7} opacity={0.8} />
       </group>
 
       {/* signal head on a pole */}
       <group position={[c.signal.x, 0.98, c.signal.z]}>
-        <InkMesh hatch={5} strength={0.8} fill={0.04}>
+        <InkMesh hatch={6} strength={0.6} fill={0.04}>
           <boxGeometry args={[0.17, 0.46, 0.13]} />
         </InkMesh>
         {/* hood */}
@@ -320,6 +329,7 @@ export default function NetworkScene({ trackRef, reduced, mobile }) {
   const L = React.useMemo(buildLayout, []);
 
   const root = React.useRef();
+  const camRef = React.useRef();
   const tabletRef = React.useRef();
   const packetsRef = React.useRef();
   const pulsesRef = React.useRef();
@@ -421,7 +431,8 @@ export default function NetworkScene({ trackRef, reduced, mobile }) {
   const tabletPts = React.useMemo(() => L.tabletLink.pts.map((p) => p.toArray()), [L]);
 
   /* ---- per-frame ---- */
-  const tmp = React.useMemo(() => ({ v: new THREE.Vector3(), o: new THREE.Object3D(), col: new THREE.Color(), inkC: new THREE.Color(), paperC: new THREE.Color(), rot: { x: 0, y: 0 } }), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tmp = React.useMemo(() => ({ v: new THREE.Vector3(), o: new THREE.Object3D(), col: new THREE.Color(), inkC: new THREE.Color(ink), paperC: new THREE.Color(paper), rot: { x: 0, y: 0 } }), []);
   React.useEffect(() => {
     tmp.inkC.set(ink);
     tmp.paperC.set(paper);
@@ -435,9 +446,23 @@ export default function NetworkScene({ trackRef, reduced, mobile }) {
     const { pointer, t } = view.current;
     const { v, o, col, inkC, paperC, rot } = tmp;
 
+    // fit the drawing to the box aspect (View sets camera.aspect each frame)
+    const cam = camRef.current;
+    if (cam) {
+      const aspect = cam.aspect || 1.78;
+      const tanH = Math.tan((CAM_FOV * Math.PI) / 360);
+      const d = Math.max(FIT_HALF_W / (tanH * aspect), FIT_HALF_H / tanH) * 1.02;
+      v.copy(CAM_DIR).multiplyScalar(d);
+      v.y += 0.2;
+      if (cam.position.distanceToSquared(v) > 1e-6) {
+        cam.position.lerp(v, reduced ? 1 : Math.min(1, dt * 6 + 0.2));
+        cam.lookAt(0, 0.2, 0);
+      }
+    }
+
     // whole topology: gentle sway, pointer tilt, scroll tilt, breathing
     if (root.current) {
-      const ty = (reduced ? 0 : 0.16 * Math.sin(time * 0.11)) + pointer.x * 0.22;
+      const ty = (reduced ? 0 : 0.12 * Math.sin(time * 0.11)) + pointer.x * 0.18;
       const tx = -pointer.y * 0.09 + (t - 0.5) * 0.12;
       const k = reduced ? 1 : Math.min(1, dt * 2.5);
       rot.y += (ty - rot.y) * k;
@@ -529,7 +554,7 @@ export default function NetworkScene({ trackRef, reduced, mobile }) {
 
   return (
     <group>
-      <PerspectiveCamera makeDefault position={[0, 7.0, 10.6]} fov={30} near={0.1} far={60} onUpdate={(c) => c.lookAt(0, 0.25, 0)} />
+      <PerspectiveCamera ref={camRef} makeDefault position={[0, 6.5, 10]} fov={CAM_FOV} near={0.1} far={60} onUpdate={(c) => c.lookAt(0, 0.2, 0)} />
       <group ref={root} position={[0, -0.1, 0]}>
         <group>
           {/* private fibre ring */}
@@ -582,7 +607,7 @@ export default function NetworkScene({ trackRef, reduced, mobile }) {
           </instancedMesh>
           {/* heartbeat rings */}
           <instancedMesh ref={pulsesRef} args={[undefined, undefined, pulseCount]}>
-            <ringGeometry args={[0.97, 1, 48]} />
+            <ringGeometry args={[0.986, 1, 64]} />
             <meshBasicMaterial color={ink} side={THREE.DoubleSide} />
           </instancedMesh>
         </group>

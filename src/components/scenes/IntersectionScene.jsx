@@ -17,11 +17,13 @@ import { useViewProgress } from "../three/useViewProgress";
 
 /* ------------------------------------------------------------------ layout */
 const RW = 3.1; // road half width (edge to centre line)
-const L = 18; // approach length from entry to intersection centre
+const L = 26; // approach length from entry to intersection centre
 const ZEBRA = 1.3; // zebra crossing depth
 const S_STOP = L - RW - 0.55 - ZEBRA; // stop line, measured along the approach
 const LANE_LAT = [1.0, 2.4]; // lane centres, lateral offset from road centre
 const MEDIAN_HALF = 0.32;
+const EXT = 7; // road drawn this far beyond the vehicle entry so it runs off-frame
+const FADE = 2.6; // vehicles scale in/out over this distance at the two road ends
 
 // approach a: vehicles enter at `entry`, travel along `d`; traffic keeps LEFT (Dhaka).
 const APPROACHES = [0, 1, 2, 3].map((a) => {
@@ -48,7 +50,7 @@ const MIN_GAP = 0.38;
 const GREEN_MIN = 4;
 const GREEN_MAX = 12;
 const AMBER = 1.6;
-const ALL_RED = 1.0;
+const ALL_RED = 1.5;
 
 function mulberry(seed) {
   let a = seed >>> 0;
@@ -98,11 +100,12 @@ function createSim(count, seed = 7) {
     v.s = tail ? Math.min(-0.8, tail.s - tail.len / 2 - v.len / 2 - 0.7 - rng() * 1.5) : -0.8 - rng() * 4;
     v.v = tail ? Math.min(tail.v, v.vmax) : v.vmax * 0.7;
     v.queued = 0;
+    v.commit = 0;
     list.push(v);
   };
 
   for (let i = 0; i < count; i++) {
-    const v = { s: 0, v: 0, len: 1, w: 1, h: 1, vmax: 1, a: 0, lane: 0, queued: 0 };
+    const v = { s: 0, v: 0, len: 1, w: 1, h: 1, vmax: 1, a: 0, lane: 0, queued: 0, commit: 0 };
     vehicles.push(v);
     spawn(v);
   }
@@ -127,10 +130,15 @@ function createSim(count, seed = 7) {
   };
 
   sim.lampFor = lampFor;
+  sim.queuedOnRed = () => {
+    let n = 0;
+    for (const v of vehicles) if (v.a % 2 !== ctrl.phase) n += v.queued;
+    return n;
+  };
   sim.step = (dt) => {
     sim.time += dt;
     // slowly drifting demand so the controller visibly re-allocates green time
-    const ns = 0.5 + 0.42 * Math.sin(sim.time / 14);
+    const ns = 0.5 + 0.3 * Math.sin(sim.time / 14);
     const ew = 1 - ns;
     sim.weights[0] = ns * 1.15;
     sim.weights[2] = ns * 0.9;
@@ -143,6 +151,16 @@ function createSim(count, seed = 7) {
       if (ctrl.state === "G") {
         ctrl.state = "A";
         ctrl.timer = AMBER;
+        // amber onset: each vehicle on the green approaches decides once — stop, or go if it
+        // could not stop comfortably before the line (the classic dilemma-zone rule)
+        for (let a = ctrl.phase; a < 4; a += 2) {
+          for (let l = 0; l < 2; l++) {
+            for (const v of lanes[a][l]) {
+              const toStop = S_STOP - (v.s + v.len / 2);
+              v.commit = toStop < (v.v * v.v) / (2 * DECEL) + 0.6 ? 1 : 0;
+            }
+          }
+        }
       } else if (ctrl.state === "A") {
         ctrl.state = "R";
         ctrl.timer = ALL_RED;
@@ -170,8 +188,11 @@ function createSim(count, seed = 7) {
             const lead = list[i - 1];
             gap = lead.s - lead.len / 2 - front - MIN_GAP;
           }
-          const proceed = lamp === 2 || (lamp === 1 && front > S_STOP - 1.6);
-          if (!proceed && front < S_STOP) gap = Math.min(gap, S_STOP - front);
+          const toStop = S_STOP - front;
+          if (toStop < -0.45) v.commit = 0; // through the line: decision no longer matters
+          const proceed = lamp === 2 || v.commit === 1;
+          // hold the constraint a little past the line so a few cm of overshoot cannot free the car
+          if (!proceed && toStop > -0.45) gap = Math.min(gap, Math.max(0, toStop));
           let target = v.vmax;
           if (gap < 0.03) target = 0;
           else if (gap < Infinity) target = Math.min(v.vmax, Math.sqrt(2 * DECEL * gap));
@@ -215,21 +236,20 @@ const vehFrag = /* glsl */ `
     vec3 n = normalize(vNormal);
     float ndl = dot(n, normalize(vec3(1.2, 2.0, 1.5)));
     float shade = smoothstep(-0.35, 0.75, ndl);
-    float s = 4.0;
+    float s = 5.0;
     float d1 = fract((gl_FragCoord.x + gl_FragCoord.y) / s);
     float d2 = fract((gl_FragCoord.x - gl_FragCoord.y) / s);
     float l1 = step(0.5, d1);
     float l2 = step(0.5, d2);
     float ink = 0.0;
-    if (shade < 0.6) ink = max(ink, l1);
-    if (shade < 0.3) ink = max(ink, l2);
-    // queued vehicles are "inked in": hatched on every face
+    if (shade < 0.42) ink = max(ink, l1 * 0.75);
+    if (shade < 0.18) ink = max(ink, l2 * 0.75);
+    // queued vehicles are "inked in": cross-hatched on every face
     float q = vState;
-    ink = max(ink, q * l1);
-    ink = max(ink, q * step(0.75, shade) * 0.0);
+    ink = max(ink, q * max(l1, l2 * step(shade, 0.6)));
     float rim = 1.0 - max(dot(n, normalize(vViewDir)), 0.0);
-    rim = smoothstep(0.8, 1.0, rim);
-    float dark = clamp(ink * 0.85 + rim * 0.5, 0.0, 1.0);
+    rim = smoothstep(0.85, 1.0, rim);
+    float dark = clamp(ink + rim * 0.4, 0.0, 1.0);
     vec3 col = mix(vec3(1.0), vec3(0.0), dark);
     col = mix(col, 1.0 - col, uInvert);
     gl_FragColor = vec4(col, 1.0);
@@ -246,9 +266,9 @@ function useRoadLines() {
 
     for (let a = 0; a < 4; a++) {
       // road edge (incoming half) from entry to the corner
-      push(solid, pt(a, 0, RW), pt(a, L - RW, RW));
+      push(solid, pt(a, -EXT, RW), pt(a, L - RW, RW));
       // lane divider (dashed) up to the stop line
-      push(dashes, pt(a, 0, 1.7), pt(a, S_STOP - 0.2, 1.7));
+      push(dashes, pt(a, -EXT, 1.7), pt(a, S_STOP - 0.2, 1.7));
       // stop line across incoming half
       push(thick, pt(a, S_STOP, MEDIAN_HALF + 0.05, 0.004), pt(a, S_STOP, RW - 0.05, 0.004));
       // zebra crossing: hollow stripes across the full road
@@ -275,7 +295,7 @@ function useRoadLines() {
       }
       // signal pole (vertical line) on the left at the stop line
       const pole = pt(a, S_STOP, RW + 0.55);
-      push(solid, pole, [pole[0], 2.55, pole[2]]);
+      push(solid, pole, [pole[0], 2.4, pole[2]]);
       // a little base ring footprint for the pole
       push(solid, [pole[0] - 0.18, 0, pole[2] - 0.18], [pole[0] + 0.18, 0, pole[2] + 0.18]);
       push(solid, [pole[0] + 0.18, 0, pole[2] - 0.18], [pole[0] - 0.18, 0, pole[2] + 0.18]);
@@ -315,8 +335,8 @@ function Medians() {
   const items = React.useMemo(
     () =>
       APPROACHES.map((ap, a) => {
-        const len = L - RW - 1.1;
-        const c = pt(a, len / 2, 0, 0.09);
+        const len = L - RW - 1.1 + EXT;
+        const c = pt(a, len / 2 - EXT, 0, 0.09);
         return { key: a, pos: c, rot: Math.atan2(ap.d[0], ap.d[1]), len };
       }),
     []
@@ -333,9 +353,9 @@ function Blocks() {
   const items = React.useMemo(() => {
     const out = [];
     const specs = [
-      { x: RW + 4.4, z: RW + 3.1, w: 3.4, d: 2.8, h: 2.2 },
-      { x: RW + 2.9, z: RW + 6.6, w: 2.4, d: 3.0, h: 1.4 },
-      { x: RW + 7.1, z: RW + 7.0, w: 2.2, d: 2.2, h: 3.0 },
+      { x: RW + 4.6, z: RW + 3.2, w: 3.4, d: 2.6, h: 1.1 },
+      { x: RW + 3.0, z: RW + 7.4, w: 2.4, d: 3.0, h: 0.7 },
+      { x: RW + 7.4, z: RW + 7.2, w: 2.2, d: 2.2, h: 1.5 },
     ];
     [-1, 1].forEach((sx) =>
       [-1, 1].forEach((sz) =>
@@ -349,7 +369,7 @@ function Blocks() {
     return out;
   }, []);
   return items.map((b) => (
-    <InkMesh key={b.key} position={b.pos} hatch={5} strength={0.8}>
+    <InkMesh key={b.key} position={b.pos} hatch={8} strength={0.18}>
       <boxGeometry args={b.size} />
     </InkMesh>
   ));
@@ -361,7 +381,7 @@ function SignalHead({ a, discRefs, barRefs }) {
   const rotY = Math.atan2(-d[0], -d[1]); // lamp face looks back at incoming traffic
   const lampY = [0.32, 0, -0.32];
   return (
-    <group position={[base[0], 2.1, base[2]]} rotation={[0, rotY, 0]}>
+    <group position={[base[0], 2.25, base[2]]} rotation={[0, rotY, 0]} scale={[1.6, 1.6, 1.6]}>
       <InkMesh hatch={4} strength={0.6}>
         <boxGeometry args={[0.46, 1.22, 0.22]} />
       </InkMesh>
@@ -419,6 +439,7 @@ function CameraUnit({ camTop, camBase, cab, pulseRefs }) {
               points={Array.from({ length: 33 }, (_, k) => [Math.cos((k / 32) * Math.PI * 2), Math.sin((k / 32) * Math.PI * 2), 0])}
               lineWidth={1}
               opacity={0.9}
+              transparent
             />
           </group>
         ))}
@@ -441,9 +462,16 @@ export default function IntersectionScene({ trackRef, inverted, reduced, mobile 
   const count = mobile ? 22 : 42;
   const sim = React.useMemo(() => {
     const s = createSim(count, 11);
-    for (let i = 0; i < 24 * 30; i++) s.step(1 / 30); // pre-warm ≈ 24 s so queues exist on first paint
+    // pre-warm ≈ 20 s, then run on (≤ 60 s more) until a clear queue is waiting on the red
+    // approaches mid-green, so the very first frame already shows the controller at work
+    for (let i = 0; i < 20 * 30; i++) s.step(1 / 30);
+    for (let i = 0; i < 60 * 30; i++) {
+      const c = s.ctrl;
+      if (c.state === "G" && c.timer > 1.5 && c.total - c.timer > 2.5 && s.queuedOnRed() >= (mobile ? 3 : 6)) break;
+      s.step(1 / 30);
+    }
     return s;
-  }, [count]);
+  }, [count, mobile]);
 
   const lines = useRoadLines();
   const camRef = React.useRef();
@@ -470,23 +498,26 @@ export default function IntersectionScene({ trackRef, inverted, reduced, mobile 
     const hull = hullRef.current;
     if (!body || !hull) return;
     const state = geo.getAttribute("aState");
-    const o = 0.045; // outline thickness (world units)
-    sim.vehicles.forEach((v, i) => {
-      const { d } = APPROACHES[v.a];
-      const hidden = v.s < 0 || v.s > 2 * L;
-      const p = pt(v.a, v.s, LANE_LAT[v.lane]);
-      dummy.position.set(p[0], v.h / 2, p[2]);
+    const o = 0.035; // outline thickness (world units)
+    const vehicles = sim.vehicles;
+    for (let i = 0; i < vehicles.length; i++) {
+      const v = vehicles[i];
+      const { d, left, entry } = APPROACHES[v.a];
+      // scale in at the entry and out at the exit so nothing pops at the road ends
+      let k = Math.min(1, Math.max(0, v.s / FADE)) * Math.min(1, Math.max(0, (2 * L - v.s) / FADE));
+      k = k * k * (3 - 2 * k);
+      const lat = LANE_LAT[v.lane];
+      dummy.position.set(entry[0] + d[0] * v.s + left[0] * lat, (v.h * k) / 2, entry[1] + d[1] * v.s + left[1] * lat);
       dummy.rotation.set(0, Math.atan2(d[0], d[1]), 0);
-      if (hidden) dummy.scale.set(0, 0, 0);
-      else dummy.scale.set(v.w, v.h, v.len);
+      dummy.scale.set(v.w * k, v.h * k, v.len * k);
       dummy.updateMatrix();
       body.setMatrixAt(i, dummy.matrix);
-      if (!hidden) dummy.scale.set(v.w + 2 * o, v.h + 2 * o, v.len + 2 * o);
-      dummy.position.y = v.h / 2 + 0.01;
+      if (k > 0) dummy.scale.set((v.w + 2 * o) * k, (v.h + 2 * o) * k, (v.len + 2 * o) * k);
+      dummy.position.y = (v.h * k) / 2 + 0.01;
       dummy.updateMatrix();
       hull.setMatrixAt(i, dummy.matrix);
       state.array[i] = v.queued;
-    });
+    }
     body.instanceMatrix.needsUpdate = true;
     hull.instanceMatrix.needsUpdate = true;
     state.needsUpdate = true;
@@ -509,10 +540,26 @@ export default function IntersectionScene({ trackRef, inverted, reduced, mobile 
     }
   }, [sim]);
 
-  // first paint: queues already present
+  const setPulses = React.useCallback((e) => {
+    const rings = pulseRefs.current;
+    for (let i = 0; i < rings.length; i++) {
+      const g = rings[i];
+      if (!g) continue;
+      const f = (e * 0.45 + i / 3) % 1;
+      const r = 0.22 + f * 0.85;
+      g.scale.set(r, r, 1);
+      g.position.y = 0.2 + f * 0.1;
+      g.visible = f < 0.9;
+      const m = g.children[0] && g.children[0].material;
+      if (m) m.opacity = 0.9 * (1 - f);
+    }
+  }, []);
+
+  // first paint: queues already present (and a sensible static pose for reduced motion)
   React.useLayoutEffect(() => {
     writeInstances();
     writeSignals();
+    setPulses(0.4);
   });
 
   const target = React.useMemo(() => new THREE.Vector3(0, 0.4, 0), []);
@@ -526,14 +573,7 @@ export default function IntersectionScene({ trackRef, inverted, reduced, mobile 
       writeSignals();
       // broadcast rings on the camera unit
       const e = state.clock.elapsedTime;
-      pulseRefs.current.forEach((g, i) => {
-        if (!g) return;
-        const f = (e * 0.45 + i / 3) % 1;
-        const r = 0.25 + f * 1.3;
-        g.scale.set(r, r, 1);
-        g.position.y = 0.2 + f * 0.1;
-        g.visible = f < 0.85;
-      });
+      setPulses(e);
     }
 
     // camera: slow orbit + pointer parallax + scroll tilt-to-plan
@@ -544,10 +584,10 @@ export default function IntersectionScene({ trackRef, inverted, reduced, mobile 
     const ease = scroll * scroll * (3 - 2 * scroll);
     if (!reduced) cs.az += dt * 0.05;
     const az = cs.az + pointer.x * 0.16;
-    const el = THREE.MathUtils.lerp(0.8, 1.36, ease) + pointer.y * 0.09;
+    const el = THREE.MathUtils.lerp(0.84, 1.38, ease) + pointer.y * 0.09;
     const fovHalf = Math.tan((cam.fov * Math.PI) / 360);
     const aspect = cam.aspect || 1.5;
-    const need = Math.max(10.2 / fovHalf, 11.8 / (fovHalf * aspect));
+    const need = Math.max(13.6 / fovHalf, 15.2 / (fovHalf * aspect));
     const wantDist = need * (1 + 0.32 * ease);
     cs.dist = cs.dist === 0 ? wantDist : THREE.MathUtils.lerp(cs.dist, wantDist, 0.08);
     const ce = Math.cos(el);
@@ -563,7 +603,7 @@ export default function IntersectionScene({ trackRef, inverted, reduced, mobile 
       <InkLine points={lines.solid} segments lineWidth={1.1} />
       <InkLine points={lines.thick} segments lineWidth={3} />
       <InkLine points={lines.dashes} segments dashed dashSize={1.1} gapSize={0.7} lineWidth={1.1} />
-      <InkLine points={lines.cone} segments dashed dashSize={0.28} gapSize={0.2} lineWidth={1} opacity={0.75} />
+      <InkLine points={lines.cone} segments dashed dashSize={0.28} gapSize={0.2} lineWidth={1.2} opacity={0.85} />
       <Medians />
       <Blocks />
 

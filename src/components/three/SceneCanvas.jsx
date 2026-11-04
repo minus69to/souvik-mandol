@@ -18,6 +18,7 @@ export default function SceneCanvas() {
       id="scene-canvas"
       eventSource={typeof document !== "undefined" ? document.body : undefined}
       eventPrefix="client"
+      flat
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance", preserveDrawingBuffer: false }}
       style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", pointerEvents: "none", zIndex: 20 }}
