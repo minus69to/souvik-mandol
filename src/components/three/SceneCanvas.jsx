@@ -16,6 +16,7 @@ export default function SceneCanvas() {
   return (
     <Canvas
       id="scene-canvas"
+      aria-hidden="true"
       eventSource={typeof document !== "undefined" ? document.body : undefined}
       eventPrefix="client"
       flat

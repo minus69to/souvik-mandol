@@ -7,14 +7,15 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 const { personal } = portfolioData;
+const DESCRIPTION =
+  "Software engineer at BRTC, BUET building Dhaka's adaptive traffic signal platform. BUET CSE graduate researching machine learning, LLM agents and HCI. Open to research collaborations.";
 
 export const metadata = {
   title: `${personal.firstName} ${personal.lastName} | ${personal.tagline}`,
-  description:
-    "Software engineer at BRTC, BUET building Dhaka's adaptive traffic signal platform. BUET CSE graduate researching machine learning, LLM agents and HCI. Open to research collaborations.",
+  description: DESCRIPTION,
   openGraph: {
     title: `${personal.firstName} ${personal.lastName} | ${personal.tagline}`,
-    description: "Signals, systems and models, built for the real world.",
+    description: DESCRIPTION,
     type: "website",
   },
 };
