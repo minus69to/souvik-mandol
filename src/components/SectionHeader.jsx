@@ -10,7 +10,7 @@ export function SectionHeader({ index, tag, headline, inverted = false, srHeadli
       </div>
       {!headline && srHeadline && <h2 className="sr-only">{srHeadline}</h2>}
       {headline && (
-        <h2 className="sheen-text mt-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.95] reveal delay-100 max-w-4xl w-max max-w-full">
+        <h2 className="sheen-text mt-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.95] reveal delay-100 max-w-4xl w-fit max-w-full">
           {headline}
         </h2>
       )}

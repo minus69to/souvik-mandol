@@ -35,7 +35,7 @@ export default function About() {
 
         <div className="lg:col-span-5 flex items-start lg:justify-end">
           <figure className="reveal delay-200 w-full max-w-sm pr-3 sm:pr-0">
-            <TiltCard max={6} lift={14} sheen className="sheen-strong relative">
+            <TiltCard max={6} lift={14} sheen className="sheen-strong relative" style={{ "--sheen-inset": "4px" }}>
               <div className="absolute -inset-2 sm:-inset-3 border-2 border-black translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3 hatch opacity-30" aria-hidden />
               <div className="relative border-4 border-black bg-white overflow-hidden aspect-[4/5]">
                 <img src={asset(personal.photo)} alt={`${personal.firstName} ${personal.lastName}`} className="w-full h-full object-cover grayscale contrast-125" />

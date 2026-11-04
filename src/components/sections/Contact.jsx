@@ -5,13 +5,11 @@ import SceneView from "../three/SceneView";
 import { SectionHeader } from "../SectionHeader";
 import { portfolioData } from "../../data/portfolioData";
 import { asset } from "../../lib/site";
-import { useMotionPrefs } from "../three/useMotionPrefs";
 import { LocalTime } from "../fx/Chrome";
 
 const { contact, personal } = portfolioData;
 
 export default function Contact() {
-  const { enabled } = useMotionPrefs();
   const rows = [
     { icon: Mail, label: personal.email, href: `mailto:${personal.email}` },
     { icon: Github, label: personal.github, href: personal.githubUrl },
@@ -23,7 +21,7 @@ export default function Contact() {
   ].filter(Boolean);
 
   return (
-    <section id="contact" className={`relative text-white border-t-2 border-black ${enabled ? "" : "bg-black"}`}>
+    <section id="contact" className="relative text-white border-t-2 border-black bg-black">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10 py-24 md:py-32 grid lg:grid-cols-12 gap-12 items-center">
         <div className="lg:col-span-7">
           <SectionHeader index={8} tag={contact.tag} headline={contact.headline} inverted />

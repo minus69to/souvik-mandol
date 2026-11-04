@@ -10,18 +10,25 @@ export default function Magnetic({ children, strength = 0.35, radius = 90, class
     const el = ref.current;
     if (!el || reduced || !window.matchMedia?.("(pointer: fine)").matches) return;
     let raf = 0;
+    let atRest = true;
     const onMove = (e) => {
       const r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
       const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
       const dx = e.clientX - cx, dy = e.clientY - cy;
       const d = Math.hypot(dx, dy);
       const reach = radius + Math.max(r.width, r.height) / 2;
+      if (d >= reach && atRest) return; // far away and already at rest: nothing to do
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (d < reach) {
           const f = (1 - d / reach) * strength;
           el.style.transform = `translate(${(dx * f).toFixed(1)}px, ${(dy * f).toFixed(1)}px)`;
-        } else el.style.transform = "";
+          atRest = false;
+        } else {
+          el.style.transform = "";
+          atRest = true;
+        }
       });
     };
     window.addEventListener("pointermove", onMove, { passive: true });

@@ -76,7 +76,7 @@ export default function Experience() {
             <article key={job.id} className="reveal grid lg:grid-cols-12 gap-8">
               <div className="lg:col-span-3 flex lg:flex-col gap-4 items-start">
                 <div className="bg-black text-white px-3 py-2 text-xs font-mono font-bold uppercase tracking-wider w-max">{job.duration}</div>
-                <div className="text-xs font-mono uppercase tracking-widest text-gray-500 pt-2">{job.location}</div>
+                <div className="text-xs font-mono uppercase tracking-widest text-gray-700 pt-2">{job.location}</div>
                 {job.id !== "brtc" && (
                   <SceneView scene={job.scene} className="hidden lg:block w-full aspect-[4/3] mt-4" />
                 )}
