@@ -26,7 +26,7 @@ export default function Research() {
                   <span className="bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-1">{r.kind}</span>
                   <span className="text-[10px] font-mono uppercase tracking-wider border border-black px-2 py-1">{r.status}</span>
                 </div>
-                <h3 className="sheen-text w-max max-w-full text-xl md:text-2xl font-black uppercase tracking-tight leading-tight">{r.title}</h3>
+                <h3 className="sheen-text w-fit max-w-full text-xl md:text-2xl font-black uppercase tracking-tight leading-tight">{r.title}</h3>
                 {r.with && <p className="mt-2 text-xs md:text-sm font-mono text-gray-500 leading-relaxed">{r.with}</p>}
                 <p className="mt-4 text-sm md:text-base text-gray-700 leading-relaxed">{r.description}</p>
                 <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -50,13 +50,13 @@ export default function Research() {
         </div>
 
         {personal.openToResearch && (
-          <TiltCard max={2} lift={4} className="sheen-strong inverted mt-14 reveal border-2 border-black bg-black text-white p-8 md:p-12 grid md:grid-cols-12 gap-8 items-center">
+          <TiltCard max={2} lift={4} className="sheen-strong inverted mt-14 reveal border-2 border-black bg-black text-white p-8 md:p-12 grid md:grid-cols-12 gap-8 items-center" style={{ "--sheen-inset": "2px" }}>
             <div className="md:col-span-8">
               <p className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] text-gray-400 mb-3">Collaboration</p>
-              <h3 className="sheen-text w-max max-w-full text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">{research.collabTitle}</h3>
+              <h3 className="sheen-text w-fit max-w-full text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">{research.collabTitle}</h3>
               <p className="mt-4 text-gray-300 leading-relaxed max-w-2xl">{research.collabText}</p>
             </div>
-            <div className="md:col-span-4 md:text-right">
+            <div className="md:col-span-4 md:text-right relative z-[1]">
               <a
                 href={`mailto:${personal.email}?subject=Research%20collaboration`}
                 className="inline-flex items-center gap-3 bg-white text-black px-6 py-4 text-sm font-bold uppercase tracking-widest border-2 border-white hover:bg-black hover:text-white transition-all hover:-translate-y-1 hover:shadow-paper"

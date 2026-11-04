@@ -16,7 +16,7 @@ export default function Education() {
           <TiltCard max={4} className="mb-10 reveal border-2 border-black bg-white"><SceneView scene="campus" className="w-full aspect-[16/7]" fallback={<div className="w-full h-full hatch opacity-10" />} /></TiltCard>
           <ol className="space-y-8">
             {education.items.map((e, i) => (
-              <TiltCard as="li" key={e.id} max={3} lift={4} className="reveal flex flex-col md:flex-row md:items-start justify-between gap-4 border-l-4 border-black pl-6 pr-4 py-3 bg-white/70" style={{ transitionDelay: `${i * 80}ms` }}>
+              <TiltCard as="li" key={e.id} max={3} lift={4} className="reveal flex flex-col md:flex-row md:items-start justify-between gap-4 border-l-4 border-black pl-6 pr-4 py-3 bg-white/70" style={{ "--d": `${i * 80}ms` }}>
                 <div>
                   <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight">{e.degree}</h3>
                   <p className="text-base md:text-lg text-gray-800 font-bold mt-1">{e.institution}</p>

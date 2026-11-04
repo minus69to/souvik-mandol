@@ -3,6 +3,7 @@ import "./globals.css";
 import CanvasRoot from "../components/three/CanvasRoot";
 import PaperBackground from "../components/fx/PaperBackground";
 import CursorFX from "../components/fx/CursorFX";
+import FxBoundary from "../components/fx/FxBoundary";
 import { portfolioData } from "../data/portfolioData";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -25,10 +26,19 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* Decide before first paint whether the intro curtain should show (once per session, never under reduced motion). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('intro-done')||matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('no-intro')}else{sessionStorage.setItem('intro-done','1')}}catch(e){document.documentElement.classList.add('no-intro')}",
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased text-black`}>
-        <PaperBackground />
-        <CanvasRoot />
-        <CursorFX />
+        <FxBoundary><PaperBackground /></FxBoundary>
+        <FxBoundary><CanvasRoot /></FxBoundary>
+        <FxBoundary><CursorFX /></FxBoundary>
         {children}
       </body>
     </html>

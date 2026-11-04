@@ -10,7 +10,9 @@ function detect() {
   let webgl = false;
   try {
     const c = document.createElement("canvas");
-    webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
+    const gl = c.getContext("webgl2") || c.getContext("webgl");
+    webgl = !!gl;
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
     webgl = false;
   }

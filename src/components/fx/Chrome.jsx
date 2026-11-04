@@ -23,20 +23,16 @@ export function ScrollProgress() {
 }
 
 export function IntroWipe() {
-  const [show, setShow] = React.useState(false);
+  // Rendered in the static HTML so it covers the very first paint; an inline
+  // script in <head> adds html.no-intro (repeat visit / reduced motion) which hides it.
+  const [show, setShow] = React.useState(true);
   React.useEffect(() => {
-    try {
-      if (sessionStorage.getItem("intro-done")) return;
-      sessionStorage.setItem("intro-done", "1");
-    } catch { /* private mode */ }
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    setShow(true);
-    const t = setTimeout(() => setShow(false), 1500);
+    const t = setTimeout(() => setShow(false), 1600);
     return () => clearTimeout(t);
   }, []);
   if (!show) return null;
   return (
-    <div aria-hidden="true" className="intro-wipe fixed inset-0 z-[80] bg-black text-white flex items-center justify-center pointer-events-none">
+    <div aria-hidden="true" className="intro-wipe fixed inset-0 z-[55] bg-black text-white flex items-center justify-center pointer-events-none">
       <div className="intro-name font-mono text-xs uppercase tracking-[0.5em]">Souvik Mandol</div>
     </div>
   );

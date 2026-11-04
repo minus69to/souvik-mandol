@@ -4,8 +4,10 @@
  *  - ring + dot follow the pointer (ring lags a little, grows over links)
  *  - moving emits iridescent smoke that drifts and dissolves
  *  - pressing releases a burst, like opening a fuel line
- * Drawn on a 2D canvas with mix-blend-mode: difference so it reads on both
- * paper and ink. Only active for fine pointers; never on touch devices.
+ * The ring and dot are DOM elements blended with `difference` (visible on any
+ * backdrop); the plume is a 2D canvas (multiply on paper, screen on ink).
+ * Only active for fine pointers; never on touch devices. If the page cannot
+ * keep up, the native cursor comes back and the plume pauses.
  */
 import * as React from "react";
 
@@ -14,6 +16,8 @@ const MAX_PARTICLES = 420;
 
 export default function CursorFX() {
   const canvasRef = React.useRef(null);
+  const ringRef = React.useRef(null);
+  const dotRef = React.useRef(null);
   const [active, setActive] = React.useState(false);
 
   React.useEffect(() => {
@@ -37,7 +41,8 @@ export default function CursorFX() {
     resize();
     window.addEventListener("resize", resize);
 
-    const s = { x: -100, y: -100, rx: -100, ry: -100, px: -100, py: -100, hover: 0, hoverT: 0, down: 0, downT: 0, visible: false, hue: 0, dark: false };
+    const s = { x: -100, y: -100, rx: -100, ry: -100, px: -100, py: -100, hover: 0, hoverT: 0, down: 0, downT: 0, visible: false, hue: 0, dark: false, slow: 16, degraded: false, idleFrames: 0 };
+    const ring = ringRef.current, dot = dotRef.current;
     const particles = [];
     let raf = 0;
     let last = performance.now();
@@ -67,7 +72,8 @@ export default function CursorFX() {
       s.hoverT = t && t.closest && t.closest(HOVER_SELECTOR) ? 1 : 0;
       // paper or ink under the cursor? (header, black banners, contact section)
       s.dark = !!(t && t.closest && t.closest("#contact, .bg-black, header"));
-      if (reduced) return;
+      if (dot) dot.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`; // compositor-positioned, never lags
+      if (reduced || s.degraded) return;
       const dx = s.x - s.px, dy = s.y - s.py;
       const speed = Math.hypot(dx, dy);
       if (s.px > -50 && speed > 0.5) {
@@ -79,9 +85,9 @@ export default function CursorFX() {
     };
     const onDown = (e) => {
       s.downT = 1;
-      if (reduced) return;
-      // fuel release: a slow, rich burst
-      emit(e.clientX, e.clientY, 0, -0.6, 46, 3.2, 9, 80);
+      if (reduced || s.degraded) return;
+      // fuel release: a slow, soft burst
+      emit(e.clientX, e.clientY, 0, -0.6, 30, 3.0, 9, 80);
     };
     const onUp = () => { s.downT = 0; };
     const onLeave = () => { s.visible = false; };
@@ -94,17 +100,44 @@ export default function CursorFX() {
 
     const tick = (now) => {
       const dt = Math.min(0.05, (now - last) / 1000);
+      // Frame-time guard: if the page stalls, give the native cursor back.
+      s.slow = s.slow * 0.9 + (now - last) * 0.1;
       last = now;
+      if (s.slow > 45 && !s.degraded) {
+        s.degraded = true;
+        document.documentElement.classList.remove("cursor-fx");
+        particles.length = 0;
+        ctx.clearRect(0, 0, w, h);
+      } else if (s.slow < 25 && s.degraded) {
+        s.degraded = false;
+        document.documentElement.classList.add("cursor-fx");
+      }
+      if (s.degraded) { raf = requestAnimationFrame(tick); return; }
       const k = 1 - Math.pow(0.0005, dt);
       s.rx += (s.x - s.rx) * k; s.ry += (s.y - s.ry) * k;
       s.hover += (s.hoverT - s.hover) * k; s.down += (s.downT - s.down) * k;
       s.hue = (s.hue + dt * 40) % 360;
 
+      // ring (DOM, difference blend) follows with a little lag
+      if (ring) {
+        const sc = 1 + s.hover * 0.85 - s.down * 0.25;
+        ring.style.transform = `translate3d(${s.rx}px, ${s.ry}px, 0) scale(${sc.toFixed(3)})`;
+        ring.style.opacity = s.visible ? "1" : "0";
+        ring.style.background = `rgba(255,255,255,${(0.06 + s.hover * 0.3).toFixed(3)})`;
+      }
+      if (dot) { dot.style.opacity = s.visible ? "1" : "0"; dot.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) scale(${(1 + s.down).toFixed(2)})`; }
+
+      // Nothing to draw? Clear once, then skip canvas work until something changes.
+      if (particles.length === 0) {
+        if (s.idleFrames++ === 0) ctx.clearRect(0, 0, w, h);
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      s.idleFrames = 0;
       ctx.clearRect(0, 0, w, h);
       // multiply = ink wash on paper; screen = glow on ink
       const mode = s.dark ? "screen" : "multiply";
       if (canvas.style.mixBlendMode !== mode) canvas.style.mixBlendMode = mode;
-      const inkCol = s.dark ? "255,255,255" : "0,0,0";
 
       // particles
       ctx.globalCompositeOperation = s.dark ? "lighter" : "source-over";
@@ -120,35 +153,15 @@ export default function CursorFX() {
         const alpha = (1 - u) * (1 - u) * 0.34;
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
         const hue = (p.hue + u * 90) % 360;
-        const L = s.dark ? 55 : 72;
-        g.addColorStop(0, `hsla(${hue}, 90%, ${L}%, ${alpha})`);
-        g.addColorStop(0.55, `hsla(${(hue + 40) % 360}, 85%, ${L}%, ${alpha * 0.45})`);
-        g.addColorStop(1, `hsla(${(hue + 80) % 360}, 85%, ${L}%, 0)`);
+        // petrol film, not neon: pastel on paper, muted glow on ink
+        const L = s.dark ? 45 : 80, S = s.dark ? 70 : 60;
+        g.addColorStop(0, `hsla(${hue}, ${S}%, ${L}%, ${alpha})`);
+        g.addColorStop(0.55, `hsla(${(hue + 40) % 360}, ${S}%, ${L}%, ${alpha * 0.45})`);
+        g.addColorStop(1, `hsla(${(hue + 80) % 360}, ${S}%, ${L}%, 0)`);
         ctx.fillStyle = g;
         ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
       }
 
-      // cursor
-      ctx.globalCompositeOperation = "source-over";
-      if (s.visible) {
-        const ringR = 14 + s.hover * 12 + s.down * -4;
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = `rgba(${inkCol},0.95)`;
-        ctx.fillStyle = `rgba(${inkCol},${0.06 + s.hover * 0.22})`;
-        ctx.beginPath(); ctx.arc(s.rx, s.ry, ringR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        // crosshair ticks when hovering
-        if (s.hover > 0.05) {
-          const t = s.hover * 5;
-          ctx.beginPath();
-          ctx.moveTo(s.rx - ringR - t, s.ry); ctx.lineTo(s.rx - ringR + 3, s.ry);
-          ctx.moveTo(s.rx + ringR - 3, s.ry); ctx.lineTo(s.rx + ringR + t, s.ry);
-          ctx.moveTo(s.rx, s.ry - ringR - t); ctx.lineTo(s.rx, s.ry - ringR + 3);
-          ctx.moveTo(s.rx, s.ry + ringR - 3); ctx.lineTo(s.rx, s.ry + ringR + t);
-          ctx.stroke();
-        }
-        ctx.fillStyle = `rgba(${inkCol},1)`;
-        ctx.beginPath(); ctx.arc(s.x, s.y, 3 + s.down * 3, 0, Math.PI * 2); ctx.fill();
-      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -166,10 +179,14 @@ export default function CursorFX() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      style={{ position: "fixed", inset: 0, zIndex: 60, pointerEvents: "none", mixBlendMode: "multiply", display: active ? "block" : "none" }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        style={{ position: "fixed", inset: 0, zIndex: 60, pointerEvents: "none", mixBlendMode: "multiply", display: active ? "block" : "none" }}
+      />
+      <div ref={ringRef} aria-hidden="true" className="cursor-ring" style={{ display: active ? "block" : "none", opacity: 0, transition: "background 0.2s" }} />
+      <div ref={dotRef} aria-hidden="true" className="cursor-dot" style={{ display: active ? "block" : "none", opacity: 0 }} />
+    </>
   );
 }

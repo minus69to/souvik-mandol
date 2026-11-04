@@ -18,9 +18,9 @@ export default function Projects() {
             <TiltCard
               as="article"
               key={p.id}
-              max={5}
+              max={3}
               className={`group reveal border-2 border-black bg-white flex flex-col hover:shadow-ink ${p.featured ? "md:col-span-2 xl:col-span-2" : ""}`}
-              style={{ transitionDelay: `${(i % 3) * 60}ms` }}
+              style={{ "--d": `${(i % 3) * 60}ms` }}
             >
               <SceneView
                 scene={p.scene}
@@ -30,7 +30,7 @@ export default function Projects() {
               <div className="p-6 md:p-7 flex flex-col flex-1">
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div>
-                    <h3 className="sheen-text w-max max-w-full text-xl md:text-2xl font-black uppercase tracking-tight leading-tight">{p.title}</h3>
+                    <h3 className="sheen-text w-fit max-w-full text-xl md:text-2xl font-black uppercase tracking-tight leading-tight">{p.title}</h3>
                     {p.subtitle && <p className="text-xs font-mono uppercase tracking-widest text-gray-500 mt-1">{p.subtitle}</p>}
                   </div>
                   <div className="flex gap-2 shrink-0">

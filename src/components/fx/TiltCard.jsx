@@ -25,7 +25,7 @@ export default function TiltCard({ as: Tag = "div", className = "", children, ma
     if (sheenRef.current) {
       sheenRef.current.style.setProperty("--mx", `${t.mx.toFixed(1)}%`);
       sheenRef.current.style.setProperty("--my", `${t.my.toFixed(1)}%`);
-      sheenRef.current.style.opacity = t.on ? "1" : "0";
+      sheenRef.current.classList.toggle("is-on", !!t.on); // CSS owns the opacity per variant
     }
   }, [lift]);
 
@@ -33,9 +33,11 @@ export default function TiltCard({ as: Tag = "div", className = "", children, ma
     if (reduced) return;
     const el = ref.current;
     if (!el) return;
+    // The centre is invariant under the card's own rotation; use layout size for the extent.
     const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width;
-    const py = (e.clientY - r.top) / r.height;
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const px = Math.min(1, Math.max(0, (e.clientX - cx) / (el.offsetWidth || r.width) + 0.5));
+    const py = Math.min(1, Math.max(0, (e.clientY - cy) / (el.offsetHeight || r.height) + 0.5));
     const t = target.current;
     t.ry = (px - 0.5) * 2 * max;
     t.rx = -(py - 0.5) * 2 * max;
@@ -54,7 +56,7 @@ export default function TiltCard({ as: Tag = "div", className = "", children, ma
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className={`tilt ${className}`}
-      style={{ transformStyle: "preserve-3d", willChange: "transform", ...style }}
+      style={{ transformStyle: "preserve-3d", ...style }}
       {...rest}
     >
       {children}

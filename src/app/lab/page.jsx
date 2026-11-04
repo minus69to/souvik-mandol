@@ -19,7 +19,7 @@ export default function Lab() {
   }, []);
   const dims = size === "card" ? { width: 480, height: 270 } : size === "tall" ? { width: 420, height: 560 } : { width: "100vw", height: "100vh" };
   return (
-    <div className={`min-h-screen ${inverted ? "bg-black text-white" : "bg-white text-black"}`}>
+    <div className={`relative z-10 min-h-screen ${inverted ? "bg-black text-white" : "bg-white text-black"}`}>
       <div className="fixed top-2 left-2 z-50 flex flex-wrap gap-1 text-[10px] font-mono">
         {SCENES.map((s) => (
           <a key={s} href={`?scene=${s}&inverted=${inverted ? 1 : 0}&size=${size}`} className={`px-1 border ${s === scene ? "bg-current" : ""}`}>
