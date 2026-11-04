@@ -48,7 +48,7 @@ export default function Contact() {
         />
       </div>
       <footer className="border-t border-white/20">
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono uppercase tracking-[0.25em] text-gray-500">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono uppercase tracking-[0.25em] text-gray-400">
           <span>© {new Date().getFullYear()} {personal.firstName} {personal.lastName}</span>
           <span>Drawn in real time · Three.js · Next.js</span>
         </div>

@@ -15,7 +15,7 @@
  */
 import * as React from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useSceneFrame as useFrame } from "../three/useSceneFrame";
 import { PerspectiveCamera, RoundedBox } from "@react-three/drei";
 import { InkMesh, InkMaterial, InkLine, InkFlat, useInk } from "../three/Ink";
 import { useViewProgress } from "../three/useViewProgress";

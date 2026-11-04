@@ -11,30 +11,38 @@
  *   inverted    – black paper / white ink
  *   interactive – let pointer events reach the 3D scene (default false)
  *   fallback    – node shown when 3D is disabled (default: nothing)
- *   sceneProps  – extra props forwarded to the scene component
+ *   sceneProps  – extra props forwarded to the scene component (keep the object stable)
+ *
+ * Scenes far outside the viewport (or display:none) are neither drawn nor
+ * simulated: an IntersectionObserver flips `visible` and the SceneActiveContext
+ * flag that useSceneFrame checks.
  */
 import * as React from "react";
-import { View } from "@react-three/drei";
-import { InkContext } from "./Ink";
+import dynamic from "next/dynamic";
 import { useMotionPrefs } from "./useMotionPrefs";
-import { SCENE_COMPONENTS } from "../scenes/registry";
 
-function Inner({ scene, trackRef, inverted, sceneProps }) {
-  const Comp = SCENE_COMPONENTS[scene];
-  const { reduced, mobile } = useMotionPrefs();
-  if (!Comp) return null;
-  return (
-    <InkContext.Provider value={{ inverted: !!inverted }}>
-      <React.Suspense fallback={null}>
-        <Comp trackRef={trackRef} inverted={!!inverted} reduced={reduced} mobile={mobile} {...sceneProps} />
-      </React.Suspense>
-    </InkContext.Provider>
-  );
-}
+const ScenePortal = dynamic(() => import("./ScenePortal"), { ssr: false });
 
 export default function SceneView({ scene, inverted = false, interactive = false, fallback = null, sceneProps, className = "", style, children, ...rest }) {
   const ref = React.useRef(null);
+  const activeRef = React.useRef(true);
+  const [near, setNear] = React.useState(true);
   const { enabled } = useMotionPrefs();
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || !enabled || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        activeRef.current = entry.isIntersecting;
+        setNear(entry.isIntersecting);
+      },
+      { rootMargin: "60% 0px 60% 0px", threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [enabled]);
+
   // Positioned by the caller (absolute/fixed/sticky) or relative by default.
   const positioned = /\b(absolute|fixed|sticky|relative)\b/.test(className);
   return (
@@ -43,12 +51,11 @@ export default function SceneView({ scene, inverted = false, interactive = false
       className={`${positioned ? "" : "relative "}${className}`}
       style={{ pointerEvents: interactive ? "auto" : "none", touchAction: interactive ? "pan-y" : "auto", ...style }}
       data-scene={scene}
+      aria-hidden="true"
       {...rest}
     >
       {enabled ? (
-        <View track={ref} style={{ position: "absolute", inset: 0 }}>
-          <Inner scene={scene} trackRef={ref} inverted={inverted} sceneProps={sceneProps} />
-        </View>
+        <ScenePortal scene={scene} trackRef={ref} inverted={inverted} sceneProps={sceneProps} activeRef={activeRef} visible={near} />
       ) : (
         fallback
       )}

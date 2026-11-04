@@ -3,14 +3,21 @@ import * as React from "react";
 import { ArrowDown, Github, Linkedin, Mail } from "lucide-react";
 import SceneView from "../three/SceneView";
 import { portfolioData } from "../../data/portfolioData";
+import { useMotionPrefs } from "../three/useMotionPrefs";
 
 const { landing, personal } = portfolioData;
 
 function Typewriter({ words }) {
+  const { reduced } = useMotionPrefs();
   const [i, setI] = React.useState(0);
   const [txt, setTxt] = React.useState("");
   React.useEffect(() => {
     const word = words[i % words.length];
+    if (reduced) {
+      setTxt(word);
+      const t = setTimeout(() => setI((v) => v + 1), 4000);
+      return () => clearTimeout(t);
+    }
     let n = 0;
     let t;
     const type = () => {
@@ -21,7 +28,7 @@ function Typewriter({ words }) {
     };
     t = setTimeout(type, 300);
     return () => clearTimeout(t);
-  }, [i, words]);
+  }, [i, words, reduced]);
   return (
     <span className="font-mono">
       {txt}
@@ -41,20 +48,20 @@ export default function Hero({ onNavigate }) {
         fallback={<div className="w-full h-full hatch opacity-10" />}
       />
 
-      <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10 min-h-[calc(100vh-4rem)] flex flex-col justify-end lg:justify-center pt-[50vh] lg:pt-0 pb-20 lg:pb-16">
+      <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10 min-h-[calc(100vh-4rem)] flex flex-col justify-end lg:justify-center pt-[50vh] lg:pt-0 pb-20 lg:pb-24">
         <div className="lg:w-[46%] lg:pr-8">
-          <p className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-gray-500 mb-6 reveal">{landing.tag}</p>
-          <h1 className="text-[2.4rem] leading-[0.92] sm:text-5xl md:text-6xl xl:text-7xl 2xl:text-[5.4rem] font-black uppercase tracking-tighter reveal delay-100 bg-white/85 lg:bg-transparent inline">
+          <p className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-gray-600 mb-5 reveal">{landing.tag}</p>
+          <h1 className="text-[2.4rem] leading-[0.92] sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-[5.2rem] font-black uppercase tracking-tighter reveal delay-100 bg-white/85 lg:bg-transparent inline">
             {landing.headline}
           </h1>
-          <p className="mt-6 text-base md:text-lg leading-relaxed text-gray-700 font-medium max-w-xl reveal delay-200">
+          <p className="mt-5 text-base md:text-lg leading-relaxed text-gray-700 font-medium max-w-xl reveal delay-200">
             {landing.subheadline}
           </p>
-          <div className="mt-6 text-sm text-gray-600 reveal delay-200 h-6">
-            <span className="text-gray-400 font-mono text-xs uppercase tracking-widest mr-3">interests</span>
+          <div className="mt-4 text-sm text-gray-700 reveal delay-200 h-6">
+            <span className="text-gray-600 font-mono text-xs uppercase tracking-widest mr-3">interests</span>
             <Typewriter words={personal.researchInterests} />
           </div>
-          <div className="mt-8 flex flex-wrap items-center gap-4 reveal delay-300">
+          <div className="mt-6 flex flex-wrap items-center gap-4 reveal delay-300">
             <a
               href="#projects"
               onClick={(e) => { e.preventDefault(); onNavigate("#projects"); }}

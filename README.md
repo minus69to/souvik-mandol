@@ -50,7 +50,7 @@ npm run dev
 
 Open http://localhost:3000/souvik-mandol/ (the repo name is the base path for GitHub Pages).
 
-- `/souvik-mandol/lab?scene=gait&inverted=1&size=card` previews a single 3D scene.
+- `/souvik-mandol/lab/?scene=gait&inverted=1&size=card` previews a single 3D scene.
 - Add `?3d=off` to any page to see the no-WebGL fallback.
 
 `npm run build` produces the static site in `out/`.

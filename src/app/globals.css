@@ -1,6 +1,11 @@
 @config "../../tailwind.config.mjs";
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
 :root {
   --paper: #ffffff;
   --ink: #000000;
@@ -65,4 +70,16 @@ body { background: var(--paper); color: var(--ink); overflow-x: hidden; }
 }
 .hatch-paper {
   background-image: repeating-linear-gradient(45deg, var(--paper) 0 1px, transparent 1px 7px);
+}
+
+/* Skip link */
+.skip-link {
+  position: fixed; top: -100px; left: 16px; z-index: 100;
+  background: var(--ink); color: var(--paper); padding: 10px 14px;
+  font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em;
+}
+.skip-link:focus { top: 72px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-blink { animation: none; }
 }

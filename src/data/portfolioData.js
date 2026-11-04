@@ -136,11 +136,11 @@ export const portfolioData = {
       {
         id: "merilsoft",
         title: "Software Engineer",
-        company: "MerilSoft LLC (Remote, USA)",
+        company: "MerilSoft LLC",
         companyShort: "MerilSoft",
         companyUrl: "https://merilsoft.com/",
         duration: "Dec 2025 – Apr 2026",
-        location: "Remote",
+        location: "Remote · USA",
         scene: "magazine",
         bullets: [
           "Built Magazine Works, an AI-powered magazine generation platform, with Next.js, PostgreSQL, AWS and Google Vertex AI.",
@@ -201,7 +201,7 @@ export const portfolioData = {
         subtitle: "AI platform for graduate school applications",
         description:
           "Helps Bangladeshi students plan graduate school applications: university suggestions, verified mentors, Gemini-based feedback on Statements of Purpose, scholarship listings and a discussion forum. Built as Spring Boot and React microservices.",
-        tags: ["Next.js", "Spring Boot", "PostgreSQL", "Google Gemini", "Microservices"],
+        tags: ["Next.js", "React", "Spring Boot", "PostgreSQL", "Google Gemini", "Microservices"],
         featured: false,
         scene: "gradcap",
         codeUrl: "https://github.com/Navid-089/GradPilot",
@@ -268,19 +268,19 @@ export const portfolioData = {
       {
         id: "memory",
         status: "Ongoing · 2026 – Present",
-        kind: "Research",
+        kind: "Collaboration",
         title: "Memory Poisoning Defences for LLM Agents",
         with: "In collaboration with Istiaque Ahmed, Graduate Researcher, Osaka Metropolitan University, Japan",
         description:
           "LLM agents with long-term memory can be misled when someone with access to the user's account plants a false fact over several conversations. We are testing a trust-scoring defence that checks how independently a stored fact is backed up, and comparing it with simpler baselines on several LLMs and a widely used agent-memory library, under a preregistered protocol.",
-        tags: ["LLM Agents", "AI Security", "Agent Memory", "Preregistered"],
+        tags: ["LLM Agents", "AI Security", "Agent Memory", "Trust Scoring"],
         scene: "memory",
         paperUrl: "",
       },
       {
         id: "bias",
         status: "Ongoing · 2026 – Present",
-        kind: "Research",
+        kind: "Collaboration",
         title: "Political Bias in LLM-Generated Bengali News Content",
         with: "In collaboration with Dr. Sharifa Sultana, Assistant Professor, University of Illinois Urbana-Champaign, USA",
         description:
@@ -306,7 +306,7 @@ export const portfolioData = {
         status: "Published · IEOM Bangladesh 2025",
         kind: "Publication",
         title: "Multi-Model Machine Learning Analysis of Ecological Load Ratio Using Classification, Regression, and Clustering Approaches in EU Countries",
-        with: "Anik Debnath, Akash Sikdar Sudip, Souvik Mandol · Proc. 8th IEOM Bangladesh International Conference, Dhaka, Dec 2025 · DOI: 10.46254/BA08.20250232",
+        with: "Anik Debnath, Akash Sikdar Sudip, Souvik Mandol · Proc. 8th IEOM Bangladesh International Conference on Industrial Engineering and Operations Management, Dhaka, Dec 2025 · DOI: 10.46254/BA08.20250232",
         description:
           "Looked at which national indicators best explain ecological pressure across EU countries, using the Ecological Load Ratio as the target. Compared several tree-based classifiers and regressors, cut a large indicator set down to a handful of key features with PSO and a genetic algorithm, tuned the models with Optuna and checked them with stratified cross-validation. Clustering then grouped countries with similar ecological profiles.",
         tags: ["Scikit-learn", "XGBoost", "LightGBM", "Optuna", "PSO", "Clustering"],
@@ -324,7 +324,7 @@ export const portfolioData = {
       { name: "Languages", items: ["Python", "Go", "C++", "TypeScript", "JavaScript", "SQL", "C", "Java", "HTML", "CSS"] },
       { name: "Data Science & ML", items: ["PyTorch", "TensorFlow", "Scikit-learn", "XGBoost", "Transformers", "LangGraph", "LoRA Fine-tuning", "NumPy", "Pandas"] },
       { name: "Backend & Systems", items: ["Go", "REST APIs", "WebSocket", "MQTT (Mosquitto)", "Binary Wire Protocols", "mTLS / PKI", "Docker", "Linux", "Tailscale", "Private Fibre Network & IP Addressing"] },
-      { name: "Embedded & Edge", items: ["STM32 Nucleo", "Jetson Orin Nano", "ROS", "Arduino UNO", "ATmega32"] },
+      { name: "Embedded & Edge", items: ["STM32 Nucleo (host-side integration)", "Jetson Orin Nano (host-side integration)", "ROS", "Arduino UNO", "ATmega32"] },
       { name: "Web", items: ["React", "Next.js", "SvelteKit", "Node.js", "Express.js", "Spring Boot", "Laravel"] },
       { name: "Cloud & DevOps", items: ["AWS", "Google Cloud (Vertex AI)", "Azure", "Docker Compose", "GitHub Actions", "Vercel", "Cloudflare R2", "Git", "Apache JMeter"] },
       { name: "Databases", items: ["PostgreSQL", "TimescaleDB", "Oracle", "Supabase", "Appwrite"] },

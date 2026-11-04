@@ -15,12 +15,35 @@
  */
 import * as React from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useSceneFrame as useFrame } from "../three/useSceneFrame";
 import { PerspectiveCamera, RoundedBox } from "@react-three/drei";
 import { InkMesh, InkMaterial, InkWire, InkLine, InkFlat, useInk } from "../three/Ink";
 import { useViewProgress } from "../three/useViewProgress";
 
 /* ------------------------------------------------------------------ layout */
+
+/** Writes [0, length] per segment into the existing lineDistance attribute (no per-frame allocation). */
+function updateLineDistances(obj) {
+  const g = obj.geometry;
+  const p = g.attributes.position;
+  const d = g.attributes.lineDistance;
+  if (!d || d.count !== p.count) {
+    obj.computeLineDistances();
+    return;
+  }
+  const a = d.array;
+  const pa = p.array;
+  for (let i = 0; i + 1 < p.count; i += 2) {
+    const o = i * 3;
+    const dx = pa[o + 3] - pa[o];
+    const dy = pa[o + 4] - pa[o + 1];
+    const dz = pa[o + 5] - pa[o + 2];
+    a[i] = 0;
+    a[i + 1] = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  }
+  d.needsUpdate = true;
+}
+
 const CAM_FOV = 28;
 const CAM_DIR = new THREE.Vector3(0, 0.34, 1).normalize();
 const LOOK_Y = -0.3;
@@ -389,7 +412,7 @@ export default function MediaScene({ trackRef, reduced, mobile }) {
         linkPos[i * 6 + 5] = lb.z;
       }
       lk.geometry.attributes.position.needsUpdate = true;
-      lk.computeLineDistances();
+      updateLineDistances(lk);
       lk.material.dashOffset = -time * 0.25;
     }
 
@@ -430,7 +453,7 @@ export default function MediaScene({ trackRef, reduced, mobile }) {
       matchPos[4] = Bs.y;
       matchPos[5] = Bs.z;
       mk.geometry.attributes.position.needsUpdate = true;
-      mk.computeLineDistances();
+      updateLineDistances(mk);
       const env = smooth(ph / 0.12) * (1 - smooth((ph - 0.62) / 0.16));
       mk.material.opacity = reduced ? 1 : env;
       mk.material.dashOffset = -time * 0.4;

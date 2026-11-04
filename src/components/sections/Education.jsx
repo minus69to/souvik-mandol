@@ -28,7 +28,7 @@ export default function Education() {
         </div>
 
         <div className="lg:col-span-5">
-          <SectionHeader index={7} tag={certifications.tag} />
+          <SectionHeader index={7} tag={certifications.tag} srHeadline={certifications.tag} />
           <SceneView scene="neural" className="w-full aspect-[16/9] border-2 border-black mb-8 reveal" fallback={<div className="w-full h-full hatch opacity-10" />} />
           <div className="space-y-8">
             {certifications.groups.map((g) => (
